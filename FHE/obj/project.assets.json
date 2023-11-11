@@ -1,0 +1,128 @@
+{
+  "version": 3,
+  "targets": {
+    "net6.0-windows7.0": {
+      "Microsoft.Research.SEALNet/4.1.1": {
+        "type": "package",
+        "compile": {
+          "lib/netstandard2.0/SEALNet.dll": {
+            "related": ".xml"
+          }
+        },
+        "runtime": {
+          "lib/netstandard2.0/SEALNet.dll": {
+            "related": ".xml"
+          }
+        },
+        "build": {
+          "build/Microsoft.Research.SEALNet.targets": {}
+        }
+      }
+    }
+  },
+  "libraries": {
+    "Microsoft.Research.SEALNet/4.1.1": {
+      "sha512": "ydhTKdZ3O6y4LgMRRNrpIWwFNOgaMrJF08HNd3aOZJOnmi2o/Groh56+js2xH/hP0X1yvIWplJ+YqlZQLMjIKw==",
+      "type": "package",
+      "path": "microsoft.research.sealnet/4.1.1",
+      "files": [
+        ".nupkg.metadata",
+        ".signature.p7s",
+        "LICENSE",
+        "ThirdPartyNotices",
+        "build/Microsoft.Research.SEALNet.targets",
+        "lib/Xamarin.iOS10/SEALNet.dll",
+        "lib/Xamarin.iOS10/SEALNet.xml",
+        "lib/netstandard2.0/SEALNet.dll",
+        "lib/netstandard2.0/SEALNet.xml",
+        "microsoft.research.sealnet.4.1.1.nupkg.sha512",
+        "microsoft.research.sealnet.nuspec",
+        "runtimes/android-arm64/libsealc.so",
+        "runtimes/android-x64/libsealc.so",
+        "runtimes/ios64/libseal.a",
+        "runtimes/ios64/libsealc.a",
+        "runtimes/linux-x64/libsealc.so",
+        "runtimes/macos-x64/libsealc.dylib",
+        "runtimes/win10-x64/sealc.dll"
+      ]
+    }
+  },
+  "projectFileDependencyGroups": {
+    "net6.0-windows7.0": [
+      "Microsoft.Research.SEALNet >= 4.1.1"
+    ]
+  },
+  "packageFolders": {
+    "C:\\Users\\97mjh\\.nuget\\packages\\": {},
+    "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages": {}
+  },
+  "project": {
+    "version": "1.0.0",
+    "restore": {
+      "projectUniqueName": "C:\\Users\\97mjh\\OneDrive\\바탕 화면\\개별연구\\FHE\\PET-Applications-Research\\FHE\\FHE.csproj",
+      "projectName": "FHE",
+      "projectPath": "C:\\Users\\97mjh\\OneDrive\\바탕 화면\\개별연구\\FHE\\PET-Applications-Research\\FHE\\FHE.csproj",
+      "packagesPath": "C:\\Users\\97mjh\\.nuget\\packages\\",
+      "outputPath": "C:\\Users\\97mjh\\OneDrive\\바탕 화면\\개별연구\\FHE\\PET-Applications-Research\\FHE\\obj\\",
+      "projectStyle": "PackageReference",
+      "fallbackFolders": [
+        "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
+      ],
+      "configFilePaths": [
+        "C:\\Users\\97mjh\\AppData\\Roaming\\NuGet\\NuGet.Config",
+        "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
+        "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
+      ],
+      "originalTargetFrameworks": [
+        "net6.0-windows"
+      ],
+      "sources": {
+        "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
+        "C:\\Program Files\\dotnet\\library-packs": {},
+        "https://api.nuget.org/v3/index.json": {}
+      },
+      "frameworks": {
+        "net6.0-windows7.0": {
+          "targetAlias": "net6.0-windows",
+          "projectReferences": {}
+        }
+      },
+      "warningProperties": {
+        "warnAsError": [
+          "NU1605"
+        ]
+      }
+    },
+    "frameworks": {
+      "net6.0-windows7.0": {
+        "targetAlias": "net6.0-windows",
+        "dependencies": {
+          "Microsoft.Research.SEALNet": {
+            "target": "Package",
+            "version": "[4.1.1, )"
+          }
+        },
+        "imports": [
+          "net461",
+          "net462",
+          "net47",
+          "net471",
+          "net472",
+          "net48",
+          "net481"
+        ],
+        "assetTargetFallback": true,
+        "warn": true,
+        "frameworkReferences": {
+          "Microsoft.NETCore.App": {
+            "privateAssets": "all"
+          },
+          "Microsoft.WindowsDesktop.App.WindowsForms": {
+            "privateAssets": "none"
+          }
+        },
+        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\6.0.400\\RuntimeIdentifierGraph.json"
+      }
+    }
+  }
+}

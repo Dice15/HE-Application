@@ -1,0 +1,10 @@
+{
+  "version": 2,
+  "dgSpecHash": "MtFxNP2q9GkMHdGlZVP0ukWFAYocpCx00tc8jj9ATOaa7jtkcxgM+tz/pJ9U8R3ufCljBrtf1hnSj/eVvLygiw==",
+  "success": true,
+  "projectFilePath": "C:\\Users\\97mjh\\OneDrive\\바탕 화면\\개별연구\\FHE\\PET-Applications-Research\\FHE\\FHE.csproj",
+  "expectedPackageFiles": [
+    "C:\\Users\\97mjh\\.nuget\\packages\\microsoft.research.sealnet\\4.1.1\\microsoft.research.sealnet.4.1.1.nupkg.sha512"
+  ],
+  "logs": []
+}
