@@ -18,3 +18,25 @@ C:\Users\97mjh\OneDrive\바탕 화면\개별연구\FHE\FHE\obj\Release\net6.0-wi
 C:\Users\97mjh\OneDrive\바탕 화면\개별연구\FHE\FHE\obj\Release\net6.0-windows\FHE.pdb
 C:\Users\97mjh\OneDrive\바탕 화면\개별연구\FHE\FHE\obj\Release\net6.0-windows\FHE.genruntimeconfig.cache
 C:\Users\97mjh\OneDrive\바탕 화면\개별연구\FHE\FHE\obj\Release\net6.0-windows\ref\FHE.dll
+C:\Users\user\Desktop\PET-Applications-Research\FHE\bin\Release\net6.0-windows\sealc.dll
+C:\Users\user\Desktop\PET-Applications-Research\FHE\bin\Release\net6.0-windows\FHE.exe
+C:\Users\user\Desktop\PET-Applications-Research\FHE\bin\Release\net6.0-windows\FHE.deps.json
+C:\Users\user\Desktop\PET-Applications-Research\FHE\bin\Release\net6.0-windows\FHE.runtimeconfig.json
+C:\Users\user\Desktop\PET-Applications-Research\FHE\bin\Release\net6.0-windows\FHE.dll
+C:\Users\user\Desktop\PET-Applications-Research\FHE\bin\Release\net6.0-windows\FHE.pdb
+C:\Users\user\Desktop\PET-Applications-Research\FHE\bin\Release\net6.0-windows\SEALNet.dll
+C:\Users\user\Desktop\PET-Applications-Research\FHE\obj\Release\net6.0-windows\FHE.csproj.AssemblyReference.cache
+C:\Users\user\Desktop\PET-Applications-Research\FHE\obj\Release\net6.0-windows\FHE.csproj.GenerateResource.cache
+C:\Users\user\Desktop\PET-Applications-Research\FHE\obj\Release\net6.0-windows\FHE.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\user\Desktop\PET-Applications-Research\FHE\obj\Release\net6.0-windows\FHE.AssemblyInfoInputs.cache
+C:\Users\user\Desktop\PET-Applications-Research\FHE\obj\Release\net6.0-windows\FHE.AssemblyInfo.cs
+C:\Users\user\Desktop\PET-Applications-Research\FHE\obj\Release\net6.0-windows\FHE.csproj.CoreCompileInputs.cache
+C:\Users\user\Desktop\PET-Applications-Research\FHE\obj\Release\net6.0-windows\FHE.csproj.CopyComplete
+C:\Users\user\Desktop\PET-Applications-Research\FHE\obj\Release\net6.0-windows\FHE.dll
+C:\Users\user\Desktop\PET-Applications-Research\FHE\obj\Release\net6.0-windows\refint\FHE.dll
+C:\Users\user\Desktop\PET-Applications-Research\FHE\obj\Release\net6.0-windows\FHE.pdb
+C:\Users\user\Desktop\PET-Applications-Research\FHE\obj\Release\net6.0-windows\FHE.genruntimeconfig.cache
+C:\Users\user\Desktop\PET-Applications-Research\FHE\obj\Release\net6.0-windows\ref\FHE.dll
+C:\Users\user\Desktop\PET-Applications-Research\FHE\obj\Release\net6.0-windows\FHE.src.clients.FourierTransformApplication.resources
+C:\Users\user\Desktop\PET-Applications-Research\FHE\obj\Release\net6.0-windows\FHE.src.clouds.FourierTransformService.resources
+C:\Users\user\Desktop\PET-Applications-Research\FHE\obj\Release\net6.0-windows\FHE.TestForm.resources
