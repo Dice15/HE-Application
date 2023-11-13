@@ -13,20 +13,20 @@ namespace FHE.src.modules.fouriertransform
         /// <summary>
         /// 주어진 데이터에 대해 푸리에 변환을 수행합니다.
         /// </summary>
-        /// <param name="encryptedVector">변환될 데이터를 포함하는 리스트입니다.
+        /// <param name="vector">변환될 데이터를 포함하는 리스트입니다.
         /// 이 리스트는 T 타입의 요소들로 구성됩니다.</param>
         /// <returns>푸리에 변환된 데이터를 포함하는 리스트를 반환합니다.
         /// 반환되는 리스트 역시 T 타입의 요소들로 구성됩니다.</returns>
-        List<T> Transform(List<T> encryptedVector);
+        List<T> Transform(List<T> vector);
 
 
         /// <summary>
         /// 푸리에 변환된 데이터에 대해 역변환을 수행합니다.
         /// </summary>
-        /// <param name="transformedEncryptedVector">역변환될 데이터를 포함하는 리스트입니다.
+        /// <param name="transformedVector">역변환될 데이터를 포함하는 리스트입니다.
         /// 이 리스트는 푸리에 변환을 거친 데이터를 포함하며, T 타입의 요소들로 구성됩니다.</param>
         /// <returns>역푸리에 변환된 데이터를 포함하는 리스트를 반환합니다.
         /// 반환되는 리스트 역시 T 타입의 요소들로 구성됩니다.</returns>
-        List<T> InverseTransform(List<T> transformedEncryptedVector);
+        List<T> InverseTransform(List<T> transformedVector);
     }
 }

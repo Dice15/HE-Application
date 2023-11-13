@@ -195,6 +195,7 @@
             this.richTextBox_log.Font = new System.Drawing.Font("맑은 고딕", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
             this.richTextBox_log.Location = new System.Drawing.Point(9, 31);
             this.richTextBox_log.Name = "richTextBox_log";
+            this.richTextBox_log.ReadOnly = true;
             this.richTextBox_log.Size = new System.Drawing.Size(484, 225);
             this.richTextBox_log.TabIndex = 8;
             this.richTextBox_log.Text = "";
@@ -208,7 +209,7 @@
             this.groupBox_log.Size = new System.Drawing.Size(501, 266);
             this.groupBox_log.TabIndex = 9;
             this.groupBox_log.TabStop = false;
-            this.groupBox_log.Text = "Process log";
+            this.groupBox_log.Text = "Client log";
             // 
             // FourierTransformApplication
             // 

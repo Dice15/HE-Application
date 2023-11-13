@@ -39,7 +39,7 @@ namespace FHE.src.modules.fouriertransform
             var transformedEncryptedVector = new List<Ciphertext>();
 
             // 벡터의 초기 순서를 변경합니다.
-            InitializeTransformedVectors(encryptedVector, transformedEncryptedVector, vectorSize);
+            InitializeVector(encryptedVector, transformedEncryptedVector, vectorSize);
 
             // FFT 알고리즘을 적용합니다.
             for (int segmentSize = 2; segmentSize <= vectorSize; segmentSize <<= 1)
@@ -50,7 +50,7 @@ namespace FHE.src.modules.fouriertransform
                     for (int k = 0; k < halfSegmentSize; k++)
                     {
                         double angle = -2.0 * Math.PI * k / segmentSize;
-                        PerformComplexOperation(transformedEncryptedVector, j, k, halfSegmentSize, new Complex(Math.Cos(angle), Math.Sin(angle)));
+                        PerformTransformOperation(transformedEncryptedVector, j, k, halfSegmentSize, new Complex(Math.Cos(angle), Math.Sin(angle)));
                     }
                 }
             }
@@ -82,7 +82,7 @@ namespace FHE.src.modules.fouriertransform
         /// <param name="encryptedVector">재배열할 암호화된 벡터입니다.</param>
         /// <param name="transformedEncryptedVector">재배열된 결과를 저장할 벡터입니다.</param>
         /// <param name="vectorSize">벡터의 크기입니다.</param>
-        private void InitializeTransformedVectors(List<Ciphertext> encryptedVector, List<Ciphertext> transformedEncryptedVector, int vectorSize)
+        private void InitializeVector(List<Ciphertext> encryptedVector, List<Ciphertext> transformedEncryptedVector, int vectorSize)
         {
             // 중첩 루프를 사용하여 벡터의 순서를 재배열합니다.
             for (int i = 0; i < vectorSize; i++)
@@ -107,7 +107,7 @@ namespace FHE.src.modules.fouriertransform
         /// <param name="k">처리할 벡터의 끝 인덱스입니다.</param>
         /// <param name="halfSegmentSize">벡터의 절반 크기입니다.</param>
         /// <param name="twiddle">변환에 사용될 복소수입니다.</param>
-        private void PerformComplexOperation(List<Ciphertext> transformedEncryptedVector, int j, int k, int halfSegmentSize, Complex twiddle)
+        private void PerformTransformOperation(List<Ciphertext> transformedEncryptedVector, int j, int k, int halfSegmentSize, Complex twiddle)
         {
             // FFT의 복소수 곱셈 연산을 수행합니다.
             var even = transformedEncryptedVector[j + k];
