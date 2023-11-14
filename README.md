@@ -25,16 +25,21 @@
 </br>
 
 
-### 2. FFT 실행 예시
+### 2. 시퀀스 다이어그램
+<img src="sample/seqDiagram.png"/>
+</br>
+
+
+### 3. FFT 실행 예시
 <img src="sample/fft.png"/>
 </br>
 
 
-### 3. DFT 실행 예시
+### 4. DFT 실행 예시
 <img src="sample/dft.png"/>
 </br>
 
 
-### 4. 소스코드 설명
+### 5. 소스코드 설명
 <img src="sample/description.png"/>
 </br>
