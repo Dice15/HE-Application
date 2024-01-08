@@ -29,29 +29,29 @@
 </br>
 
 
-### 1. 클래스 다이어그램
-<img src="image/classDiagram.png"/>
-</br>
-
-
-### 2. 시퀀스 다이어그램
-<img src="image/seqDiagram.png"/>
-</br>
-
-
-### 3. Audio Noise Cancelling (FFT) 실행 예시
+### 1. Audio Noise Cancelling (FFT) 실행 예시
 <img src="image/fft_noise_cancelling.png"/>
 <img src="image/fft_noise_cancelling_graph.png"/>
 </br>
 
 
-### 4. FFT 실행 예시
+### 2. FFT 실행 예시
 <img src="image/fft.png"/>
 </br>
 
 
-### 5. DFT 실행 예시
+### 3. DFT 실행 예시
 <img src="image/dft.png"/>
+</br>
+
+
+### 4. 클래스 다이어그램
+<img src="image/classDiagram.png"/>
+</br>
+
+
+### 5. 시퀀스 다이어그램
+<img src="image/seqDiagram.png"/>
 </br>
 
 
