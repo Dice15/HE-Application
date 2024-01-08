@@ -1,0 +1,75 @@
+C:\Users\97mjh\OneDrive\바탕 화면\개별연구\FHE\FHE\bin\Debug\net6.0-windows\FHE.exe
+C:\Users\97mjh\OneDrive\바탕 화면\개별연구\FHE\FHE\bin\Debug\net6.0-windows\FHE.deps.json
+C:\Users\97mjh\OneDrive\바탕 화면\개별연구\FHE\FHE\bin\Debug\net6.0-windows\FHE.runtimeconfig.json
+C:\Users\97mjh\OneDrive\바탕 화면\개별연구\FHE\FHE\bin\Debug\net6.0-windows\FHE.dll
+C:\Users\97mjh\OneDrive\바탕 화면\개별연구\FHE\FHE\bin\Debug\net6.0-windows\FHE.pdb
+C:\Users\97mjh\OneDrive\바탕 화면\개별연구\FHE\FHE\obj\Debug\net6.0-windows\FHE.csproj.AssemblyReference.cache
+C:\Users\97mjh\OneDrive\바탕 화면\개별연구\FHE\FHE\obj\Debug\net6.0-windows\FHE.Form1.resources
+C:\Users\97mjh\OneDrive\바탕 화면\개별연구\FHE\FHE\obj\Debug\net6.0-windows\FHE.csproj.GenerateResource.cache
+C:\Users\97mjh\OneDrive\바탕 화면\개별연구\FHE\FHE\obj\Debug\net6.0-windows\FHE.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\97mjh\OneDrive\바탕 화면\개별연구\FHE\FHE\obj\Debug\net6.0-windows\FHE.AssemblyInfoInputs.cache
+C:\Users\97mjh\OneDrive\바탕 화면\개별연구\FHE\FHE\obj\Debug\net6.0-windows\FHE.AssemblyInfo.cs
+C:\Users\97mjh\OneDrive\바탕 화면\개별연구\FHE\FHE\obj\Debug\net6.0-windows\FHE.csproj.CoreCompileInputs.cache
+C:\Users\97mjh\OneDrive\바탕 화면\개별연구\FHE\FHE\obj\Debug\net6.0-windows\FHE.dll
+C:\Users\97mjh\OneDrive\바탕 화면\개별연구\FHE\FHE\obj\Debug\net6.0-windows\refint\FHE.dll
+C:\Users\97mjh\OneDrive\바탕 화면\개별연구\FHE\FHE\obj\Debug\net6.0-windows\FHE.pdb
+C:\Users\97mjh\OneDrive\바탕 화면\개별연구\FHE\FHE\obj\Debug\net6.0-windows\FHE.genruntimeconfig.cache
+C:\Users\97mjh\OneDrive\바탕 화면\개별연구\FHE\FHE\obj\Debug\net6.0-windows\ref\FHE.dll
+C:\Users\97mjh\OneDrive\바탕 화면\개별연구\FHE\FHE\bin\Debug\net6.0-windows\sealc.dll
+C:\Users\97mjh\OneDrive\바탕 화면\개별연구\FHE\FHE\bin\Debug\net6.0-windows\SEALNet.dll
+C:\Users\97mjh\OneDrive\바탕 화면\개별연구\FHE\FHE\obj\Debug\net6.0-windows\FHE.csproj.CopyComplete
+C:\Users\97mjh\OneDrive\바탕 화면\개별연구\FHE\PET-Applications-Research\FHE\bin\Debug\net6.0-windows\sealc.dll
+C:\Users\97mjh\OneDrive\바탕 화면\개별연구\FHE\PET-Applications-Research\FHE\bin\Debug\net6.0-windows\FHE.exe
+C:\Users\97mjh\OneDrive\바탕 화면\개별연구\FHE\PET-Applications-Research\FHE\bin\Debug\net6.0-windows\FHE.deps.json
+C:\Users\97mjh\OneDrive\바탕 화면\개별연구\FHE\PET-Applications-Research\FHE\bin\Debug\net6.0-windows\FHE.runtimeconfig.json
+C:\Users\97mjh\OneDrive\바탕 화면\개별연구\FHE\PET-Applications-Research\FHE\bin\Debug\net6.0-windows\FHE.dll
+C:\Users\97mjh\OneDrive\바탕 화면\개별연구\FHE\PET-Applications-Research\FHE\bin\Debug\net6.0-windows\FHE.pdb
+C:\Users\97mjh\OneDrive\바탕 화면\개별연구\FHE\PET-Applications-Research\FHE\bin\Debug\net6.0-windows\SEALNet.dll
+C:\Users\97mjh\OneDrive\바탕 화면\개별연구\FHE\PET-Applications-Research\FHE\obj\Debug\net6.0-windows\FHE.csproj.AssemblyReference.cache
+C:\Users\97mjh\OneDrive\바탕 화면\개별연구\FHE\PET-Applications-Research\FHE\obj\Debug\net6.0-windows\FHE.Form1.resources
+C:\Users\97mjh\OneDrive\바탕 화면\개별연구\FHE\PET-Applications-Research\FHE\obj\Debug\net6.0-windows\FHE.csproj.GenerateResource.cache
+C:\Users\97mjh\OneDrive\바탕 화면\개별연구\FHE\PET-Applications-Research\FHE\obj\Debug\net6.0-windows\FHE.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\97mjh\OneDrive\바탕 화면\개별연구\FHE\PET-Applications-Research\FHE\obj\Debug\net6.0-windows\FHE.AssemblyInfoInputs.cache
+C:\Users\97mjh\OneDrive\바탕 화면\개별연구\FHE\PET-Applications-Research\FHE\obj\Debug\net6.0-windows\FHE.AssemblyInfo.cs
+C:\Users\97mjh\OneDrive\바탕 화면\개별연구\FHE\PET-Applications-Research\FHE\obj\Debug\net6.0-windows\FHE.csproj.CoreCompileInputs.cache
+C:\Users\97mjh\OneDrive\바탕 화면\개별연구\FHE\PET-Applications-Research\FHE\obj\Debug\net6.0-windows\FHE.csproj.CopyComplete
+C:\Users\97mjh\OneDrive\바탕 화면\개별연구\FHE\PET-Applications-Research\FHE\obj\Debug\net6.0-windows\FHE.dll
+C:\Users\97mjh\OneDrive\바탕 화면\개별연구\FHE\PET-Applications-Research\FHE\obj\Debug\net6.0-windows\refint\FHE.dll
+C:\Users\97mjh\OneDrive\바탕 화면\개별연구\FHE\PET-Applications-Research\FHE\obj\Debug\net6.0-windows\FHE.pdb
+C:\Users\97mjh\OneDrive\바탕 화면\개별연구\FHE\PET-Applications-Research\FHE\obj\Debug\net6.0-windows\FHE.genruntimeconfig.cache
+C:\Users\97mjh\OneDrive\바탕 화면\개별연구\FHE\PET-Applications-Research\FHE\obj\Debug\net6.0-windows\ref\FHE.dll
+C:\Users\user\Desktop\PET-Applications-Research\FHE\bin\Debug\net6.0-windows\sealc.dll
+C:\Users\user\Desktop\PET-Applications-Research\FHE\bin\Debug\net6.0-windows\FHE.exe
+C:\Users\user\Desktop\PET-Applications-Research\FHE\bin\Debug\net6.0-windows\FHE.deps.json
+C:\Users\user\Desktop\PET-Applications-Research\FHE\bin\Debug\net6.0-windows\FHE.runtimeconfig.json
+C:\Users\user\Desktop\PET-Applications-Research\FHE\bin\Debug\net6.0-windows\FHE.dll
+C:\Users\user\Desktop\PET-Applications-Research\FHE\bin\Debug\net6.0-windows\FHE.pdb
+C:\Users\user\Desktop\PET-Applications-Research\FHE\bin\Debug\net6.0-windows\SEALNet.dll
+C:\Users\user\Desktop\PET-Applications-Research\FHE\obj\Debug\net6.0-windows\FHE.csproj.AssemblyReference.cache
+C:\Users\user\Desktop\PET-Applications-Research\FHE\obj\Debug\net6.0-windows\FHE.csproj.GenerateResource.cache
+C:\Users\user\Desktop\PET-Applications-Research\FHE\obj\Debug\net6.0-windows\FHE.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\user\Desktop\PET-Applications-Research\FHE\obj\Debug\net6.0-windows\FHE.AssemblyInfoInputs.cache
+C:\Users\user\Desktop\PET-Applications-Research\FHE\obj\Debug\net6.0-windows\FHE.AssemblyInfo.cs
+C:\Users\user\Desktop\PET-Applications-Research\FHE\obj\Debug\net6.0-windows\FHE.csproj.CoreCompileInputs.cache
+C:\Users\user\Desktop\PET-Applications-Research\FHE\obj\Debug\net6.0-windows\FHE.csproj.CopyComplete
+C:\Users\user\Desktop\PET-Applications-Research\FHE\obj\Debug\net6.0-windows\FHE.dll
+C:\Users\user\Desktop\PET-Applications-Research\FHE\obj\Debug\net6.0-windows\refint\FHE.dll
+C:\Users\user\Desktop\PET-Applications-Research\FHE\obj\Debug\net6.0-windows\FHE.pdb
+C:\Users\user\Desktop\PET-Applications-Research\FHE\obj\Debug\net6.0-windows\FHE.genruntimeconfig.cache
+C:\Users\user\Desktop\PET-Applications-Research\FHE\obj\Debug\net6.0-windows\ref\FHE.dll
+C:\Users\user\Desktop\PET-Applications-Research\FHE\obj\Debug\net6.0-windows\FHE.src.clients.FourierTransformApplication.resources
+C:\Users\user\Desktop\PET-Applications-Research\FHE\obj\Debug\net6.0-windows\FHE.src.clouds.FourierTransformService.resources
+C:\Users\user\Desktop\PET-Applications-Research\FHE\obj\Debug\net6.0-windows\FHE.TestForm.resources
+C:\Users\user\Desktop\PET-Applications-Research\FHE\bin\Debug\net6.0-windows\MathNet.Numerics.dll
+C:\Users\user\Desktop\PET-Applications-Research\FHE\bin\Debug\net6.0-windows\NAudio.dll
+C:\Users\user\Desktop\PET-Applications-Research\FHE\bin\Debug\net6.0-windows\NAudio.Asio.dll
+C:\Users\user\Desktop\PET-Applications-Research\FHE\bin\Debug\net6.0-windows\NAudio.Core.dll
+C:\Users\user\Desktop\PET-Applications-Research\FHE\bin\Debug\net6.0-windows\NAudio.Midi.dll
+C:\Users\user\Desktop\PET-Applications-Research\FHE\bin\Debug\net6.0-windows\NAudio.Wasapi.dll
+C:\Users\user\Desktop\PET-Applications-Research\FHE\bin\Debug\net6.0-windows\NAudio.WinForms.dll
+C:\Users\user\Desktop\PET-Applications-Research\FHE\bin\Debug\net6.0-windows\NAudio.WinMM.dll
+C:\Users\user\Desktop\PET-Applications-Research\FHE\bin\Debug\net6.0-windows\libmp3lame.32.dll
+C:\Users\user\Desktop\PET-Applications-Research\FHE\bin\Debug\net6.0-windows\libmp3lame.64.dll
+C:\Users\user\Desktop\PET-Applications-Research\FHE\bin\Debug\net6.0-windows\NAudio.Lame.dll
+C:\Users\user\Desktop\PET-Applications-Research\FHE\obj\Debug\net6.0-windows\FHE.src.clients.AudioNoiseCancellingApplication.resources
+C:\Users\user\Desktop\PET-Applications-Research\FHE\obj\Debug\net6.0-windows\FHE.src.clouds.AudioNoiseCancellingService.resources

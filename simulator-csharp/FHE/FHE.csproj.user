@@ -1,0 +1,20 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="Current" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Compile Update="src\clients\AudioNoiseCancellingApplication.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Update="src\clouds\AudioNoiseCancellingService.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Update="TestForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Update="src\clients\FourierTransformApplication.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Update="src\clouds\FourierTransformService.cs">
+      <SubType>Form</SubType>
+    </Compile>
+  </ItemGroup>
+</Project>
