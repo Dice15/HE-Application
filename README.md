@@ -1,7 +1,6 @@
 </br>
 
 [![Solved.ac프로필](http://mazassumnida.wtf/api/v2/generate_badge?boj=97mjh1012)](https://solved.ac/97mjh1012)
-* Boj: [https://blog.naver.com/jqkt15](https://solved.ac/profile/97mjh1012)
 * Blog: https://blog.naver.com/jqkt15
 * Email: java_script@kakao.com
 </br>
