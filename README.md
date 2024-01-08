@@ -40,7 +40,7 @@
 
 
 ### 3. Audio Noise Cancelling (FFT) 실행 예시
-<img src="image/dft.png"/>
+<img src="image/fft_noise_cancelling.png"/>
 <img src="image/fft_noise_cancelling_graph.png"/>
 </br>
 
