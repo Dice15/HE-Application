@@ -82,7 +82,7 @@ namespace FHE.src.clients
 
                     // 가상의 오디오 데이터 생성
                     Random rnd = new Random();
-                    var audio = Enumerable.Range(0, 256).Select(x => (float)(rnd.NextDouble() * 2.0 - 1.0)).ToArray();
+                    var audio = Enumerable.Range(0, 16).Select(x => (float)(rnd.NextDouble() * 2.0 - 1.0)).ToArray();
                     float maxVal = audio.Max();
                     float minVal = audio.Min();
 
