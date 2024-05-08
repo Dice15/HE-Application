@@ -1,33 +1,17 @@
-</br>
-
-[![Solved.ac프로필](http://mazassumnida.wtf/api/v2/generate_badge?boj=97mjh1012)](https://solved.ac/97mjh1012)
-* Blog: https://blog.naver.com/jqkt15
-* Email: java_script@kakao.com
-</br>
-
-
 # PET-Applications-Research
- 개별연구1(CS Privacy Enhancing Technology 응용 사례 연구1)</br>
- 개별연구2(CS Privacy Enhancing Technology 응용 사례 연구2)</br>
+ 개별연구1 (CS Privacy Enhancing Technology 응용 사례 연구1)</br>
+ 개별연구2 (CS Privacy Enhancing Technology 응용 사례 연구2)</br>
+ 개별연구3 (CSC Privacy Enhacing Technology 심화 연구1)</br>
 </br>
 
-<div>
- <img src="https://img.shields.io/badge/Microsoft%20SEAL-0078D4?style=flat-square&logo=microsoft&logoColor=white"/>
- <img src="https://img.shields.io/badge/NumPy-013243?style=flat-square&logo=numpy&logoColor=white"/>
-</div>
+### 🛠 SKILL 🛠
+| 연구 주제 | 사용한 기술 | 
+|------|-----|
+|개별연구1 - 동형암호를 활용한 FFT|<img src="https://img.shields.io/badge/Microsoft%20SEAL-0078D4?style=flat-square&logo=microsoft&logoColor=white"/> <img src="https://img.shields.io/badge/C%23-239120?style=flat-square&logo=csharp&logoColor=white"/> <img src="https://img.shields.io/badge/.NET%20Core-512BD4?style=flat-square&logo=.net&logoColor=white"/>|
+|개별연구2 - 동형암호를 활용한 Noise Cancelling|<img src="https://img.shields.io/badge/Microsoft%20SEAL-0078D4?style=flat-square&logo=microsoft&logoColor=white"/> <img src="https://img.shields.io/badge/C%23-239120?style=flat-square&logo=csharp&logoColor=white"/> <img src="https://img.shields.io/badge/.NET%20Core-512BD4?style=flat-square&logo=.net&logoColor=white"/>|
+|개별연구3 - 동형암호를 활용한 Disease Prediction|<img src="https://img.shields.io/badge/node--seal-339933?style=flat-square&logo=node.js&logoColor=white"/> ![Next.js](https://img.shields.io/badge/Next.js-000000?style=flat-square&logo=next.js&logoColor=white) ![TypeScript](https://img.shields.io/badge/TypeScript-007ACC?style=flat-square&logo=typescript&logoColor=white) <img src="https://img.shields.io/badge/Python-3776AB?style=flat-square&logo=python&logoColor=white"/> <img src="https://img.shields.io/badge/sklearn-F7931E?style=flat-square&logo=scikitlearn&logoColor=white"/>|
 
-<div>
- <img src="https://img.shields.io/badge/C%23-239120?style=flat-square&logo=csharp&logoColor=white"/>
- <img src="https://img.shields.io/badge/.NET%20Core-512BD4?style=flat-square&logo=.net&logoColor=white"/>
- <img src="https://img.shields.io/badge/Python-3776AB?style=flat-square&logo=python&logoColor=white"/>
-</div>
-
-<div>
- <img src="https://img.shields.io/badge/Visual Studio-5C2D91?style=flat-square&logo=visualstudio&logoColor=white"/> 
- <img src="https://img.shields.io/badge/VSCode-007ACC?style=flat-square&logo=visualstudiocode&logoColor=white"/>
-</div>
 </br>
-
 
 ### 1. Audio Noise Cancelling (FFT) 실행 예시
 <img src="image/fft_noise_cancelling.png"/>
