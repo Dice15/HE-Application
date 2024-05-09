@@ -47,10 +47,7 @@ export default function Test() {
 
             return axios.post('/api/diseasePrediction/kidneyDisease', body).then((response) => {
                 const { prediction } = response.data;
-                const temp = ckksSeal.decrypt(ckksSeal.deserializeCipherText(prediction))[0];
-                const result = temp < 0.5;//ckksSeal.decrypt(ckksSeal.deserializeCipherText(prediction))[0] < 0.5;
-
-                console.log(`${index} - ${temp}`);
+                const result = ckksSeal.decrypt(ckksSeal.deserializeCipherText(prediction))[0] < 0.5;
 
                 setPredictionResults(prevResults => {
                     const newResults = [...prevResults];
@@ -92,7 +89,7 @@ export default function Test() {
                             });
                             console.error("Parsing error:", results.errors);
                         } else {
-                            const data = (results.data as any[]).slice(0, 10); //filter((value, index) => index % 15 === 0);
+                            const data = (results.data as any[]).filter((_, index) => index % 10 === 0);
                             const result = Array.from({ length: data.length }, () => false);
                             const origin = JSON.parse(JSON.stringify(data, null, 2)) as any[];
                             const remainTime = minLoadingTime - (Date.now() - startTime);
@@ -100,11 +97,8 @@ export default function Test() {
                             setTimeout(() => {
                                 setPredictionResults(result);
                                 setOriginalPatientsInfo(origin);
-                                setProgress(0); // 초기화
-
-                                setTimeout(() => {
-                                    predicting(ckksSeal, KidneyDisease.preprocessData(data));
-                                }, 3000);
+                                setProgress(0);
+                                predicting(ckksSeal, KidneyDisease.preprocessData(data));
                             }, remainTime > 0 ? remainTime : 0);
                         }
                     },
@@ -152,10 +146,10 @@ export default function Test() {
                 <h1>환자 정보 CSV파일 업로드</h1>
                 <input type="file" accept=".csv" onChange={handleUploadCSV} style={{ marginTop: '30px' }} disabled={ckksSeal === undefined} />
             </div>
-            <div style={{ width: 'calc(100% - 40px)', height: '20px', padding: '20px', display: 'flex', flexDirection: "column", justifyContent: 'center', alignItems: 'center' }}>
+            <div style={{ width: 'calc(100% - 40px)', height: '24px', padding: '3px', display: 'flex', flexDirection: "column", justifyContent: 'center', alignItems: 'center' }}>
                 <ProgressBar progress={progress} />
             </div>
-            <div style={{ width: 'calc(100% - 40px)', height: 'calc(100% - 160px - 60px - 20px)', padding: '10px 20px', display: 'flex', flexDirection: "column", alignItems: 'center' }}>
+            <div style={{ width: 'calc(100% - 40px)', height: 'calc(100% - 160px - 30px - 20px)', padding: '10px 20px', display: 'flex', flexDirection: "column", alignItems: 'center' }}>
                 <PatientTable title="환자 정보" data={originalPatientsInfo} result={predictionResults} />
             </div>
         </div>

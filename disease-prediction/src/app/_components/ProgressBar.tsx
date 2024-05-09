@@ -6,11 +6,11 @@ interface ProgressBarProps {
 
 export default function ProgressBar({ progress }: ProgressBarProps) {
     return (
-        <div style={{ width: '100%', height: '20px', backgroundColor: '#e0e0df', borderRadius: '5px', overflow: 'hidden', marginTop: '20px' }}>
+        <div style={{ width: 'calc(100% - 10px)', height: '20px', backgroundColor: '#e0e0df', border: '2px solid #a2a2a2', borderRadius: '5px', overflow: 'hidden' }}>
             <div style={{
                 width: `${progress}%`,
                 height: '100%',
-                backgroundColor: progress < 100 ? '#76c7c0' : '#4caf50',
+                backgroundColor: (progress < 50 ? '#cdffd6' : progress < 80 ? '#51e96d' : '#0fbd2f'),
                 transition: 'width 0.3s'
             }} />
         </div>

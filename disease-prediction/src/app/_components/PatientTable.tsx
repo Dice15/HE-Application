@@ -10,7 +10,7 @@ export default function PatientTable({ title, data, result }: TableProps) {
     return (
         <div style={{ width: '100%', height: '100%', display: 'flex', flexDirection: "column", alignItems: 'center' }}>
             <h2>{title}</h2>
-            <div style={{ width: '100%', maxWidth: '100%', height: 'calc(100% - 10px)', maxHeight: 'calc(100% - 10px)', paddingTop: '10px', overflowY: 'scroll', overflowX: 'scroll' }}>
+            <div style={{ width: '100%', maxWidth: '100%', height: 'calc(100% - 20px)', maxHeight: 'calc(100% - 20px)', paddingTop: '20px', overflowY: 'scroll', overflowX: 'scroll' }}>
                 <table style={{ borderCollapse: 'collapse', width: '100%' }}>
                     <thead>
                         <tr>
