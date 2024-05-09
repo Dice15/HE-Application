@@ -2,7 +2,6 @@ import { BatchEncoder } from 'node-seal/implementation/batch-encoder';
 import { CipherText } from 'node-seal/implementation/cipher-text';
 import { Context } from 'node-seal/implementation/context';
 import { Decryptor } from 'node-seal/implementation/decryptor';
-import { EncryptionParameters } from 'node-seal/implementation/encryption-parameters';
 import { Encryptor } from 'node-seal/implementation/encryptor';
 import { Evaluator } from 'node-seal/implementation/evaluator';
 import { GaloisKeys } from 'node-seal/implementation/galois-keys';

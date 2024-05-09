@@ -1,9 +1,7 @@
-import { BatchEncoder } from 'node-seal/implementation/batch-encoder';
 import { CipherText } from 'node-seal/implementation/cipher-text';
 import { CKKSEncoder } from 'node-seal/implementation/ckks-encoder';
 import { Context } from 'node-seal/implementation/context';
 import { Decryptor } from 'node-seal/implementation/decryptor';
-import { EncryptionParameters } from 'node-seal/implementation/encryption-parameters';
 import { Encryptor } from 'node-seal/implementation/encryptor';
 import { Evaluator } from 'node-seal/implementation/evaluator';
 import { GaloisKeys } from 'node-seal/implementation/galois-keys';
@@ -56,8 +54,8 @@ export class CKKSSealBuilder {
     build(seal: SEALLibrary) {
         const schemeType = seal.SchemeType.ckks;
         const securityLevel = seal.SecurityLevel.tc128;
-        const polyModulusDegree = 4096
-        const bitSizes = Int32Array.from([46, 16, 46])
+        const polyModulusDegree = 4096;
+        const bitSizes = Int32Array.from([50, 50])
         const coeffModulus = seal.CoeffModulus.Create(polyModulusDegree, bitSizes)
         //const polyModulusDegree = Math.pow(2, this._polyModulusDegree);
         //const coeffModulus = seal.CoeffModulus.Create(polyModulusDegree, Int32Array.from([40, 40, 40, 40, 40]));
@@ -76,7 +74,7 @@ export class CKKSSealBuilder {
             const publicKey = keyGenerator.createPublicKey();
             const secretKey = keyGenerator.secretKey();
             const relinKeys = keyGenerator.createRelinKeys();
-            const galoisKey = keyGenerator.createGaloisKeys();
+            const galoisKey = keyGenerator.createGaloisKeys();  // Int32Array.from([1, 2, 4, 8, 16])파라미터 주고 로테이션
 
             this._serializedPublicKey && publicKey.load(context, this._serializedPublicKey);
             this._serializedRelinKeys && relinKeys.load(context, this._serializedRelinKeys);

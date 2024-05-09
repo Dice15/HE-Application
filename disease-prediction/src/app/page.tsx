@@ -4,7 +4,7 @@ import Test from "./Test";
 
 export default function Home() {
   return (
-    <main className={styles.main}>
+    <main className={styles.wrapper}>
       <Test />
     </main>
   );

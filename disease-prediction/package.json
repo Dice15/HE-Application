@@ -15,7 +15,8 @@
     "node-seal": "^5.1.3",
     "papaparse": "^5.4.1",
     "react": "^18",
-    "react-dom": "^18"
+    "react-dom": "^18",
+    "sweetalert2": "^11.10.8"
   },
   "devDependencies": {
     "@types/node": "^20",

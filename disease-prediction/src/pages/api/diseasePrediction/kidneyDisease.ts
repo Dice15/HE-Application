@@ -90,7 +90,7 @@ export default async function handler(request: NextApiRequest, response: NextApi
             .build(nodeSeal);
         const patientInfo = ckksSeal.deserializeCipherText(serializedPatientInfo as string);
         const prediction = predictKidneyDisease(ckksSeal, patientInfo);
-        console.log("finish")
+ 
         response.status(200).json({ message: "정상적으로 처리되었습니다.", prediction: ckksSeal.serializeCipherText(prediction) });
     }
     catch (e) {
