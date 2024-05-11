@@ -44,16 +44,28 @@ const MRLmodel = {
 }
 
 
-function predictKidneyDisease(ckksSeal: CKKSSeal, inputs: CipherText): CipherText {
-    const scaleConst = ckksSeal.encrypt([1]);
-    const intercept = ckksSeal.encrypt([MRLmodel.intercept]);
-    const coefficients = ckksSeal.encrypt(MRLmodel.features.map(key => MRLmodel.coefficients[key]));
-    return ckksSeal.add(ckksSeal.sum(ckksSeal.multiply(coefficients, inputs)), ckksSeal.multiply(scaleConst, intercept));
+function predictKidneyDisease(ckksSeal: CKKSSeal, inputs: CipherText, chunkSize: number): CipherText {
+    const slotCount = ckksSeal.getSlotCount();
+    const scaleConst = Array.from({ length: slotCount }, () => 1);
+    const intercept = Array.from({ length: slotCount }, () => MRLmodel.intercept);
+    const coefficients = Array.from({ length: slotCount }, () => 0);
+
+    for (let startIndex = 0; startIndex < slotCount; startIndex += chunkSize) {
+        MRLmodel.features.map(key => MRLmodel.coefficients[key]).forEach((value, index) => {
+            coefficients[startIndex + index] = value;
+        });
+    }
+
+    const encryptedScaleConst = ckksSeal.encrypt(scaleConst);
+    const encryptedIntercept = ckksSeal.encrypt(intercept);
+    const encryptedCoefficients = ckksSeal.encrypt(coefficients);
+
+    return ckksSeal.add(ckksSeal.sum(ckksSeal.multiply(encryptedCoefficients, inputs), chunkSize), ckksSeal.multiply(encryptedScaleConst, encryptedIntercept));
 }
 
 
 export default async function handler(request: NextApiRequest, response: NextApiResponse) {
-    const { serializedPatientInfo, serializedPublickey, serializedRelinKeys, serializedGaloisKey } = request.body;
+    const { serializedPatientInfo, chunkSize, serializedPublickey, serializedRelinKeys, serializedGaloisKey } = request.body;
 
     try {
         const nodeSeal = await NodeSealProvider.getSeal();
@@ -63,7 +75,7 @@ export default async function handler(request: NextApiRequest, response: NextApi
             .deserializeGaloisKey(serializedGaloisKey)
             .build(nodeSeal);
         const patientInfo = ckksSeal.deserializeCipherText(serializedPatientInfo as string);
-        const prediction = predictKidneyDisease(ckksSeal, patientInfo);
+        const prediction = predictKidneyDisease(ckksSeal, patientInfo, chunkSize as number);
 
         response.status(200).json({ message: "정상적으로 처리되었습니다.", prediction: ckksSeal.serializeCipherText(prediction) });
     }

@@ -136,29 +136,77 @@ export class CKKSSeal {
         this._scale = scale;
     }
 
-    serializePublicKey(): string {
+    public serializePublicKey(): string {
         return this._publicKey.save();
     }
 
-    serializeGaloisKey(): string {
+    public serializeGaloisKey(): string {
         return this._galoisKey.save();
     }
 
-    serializeRelinKeys(): string {
+    public serializeRelinKeys(): string {
         return this._relinKeys.save();
     }
 
-    serializeCipherText(cipherText: CipherText): string {
+    public serializeCipherText(cipherText: CipherText): string {
         return cipherText.save();
     }
 
-    deserializeCipherText(serializedCipherText: string): CipherText {
+    public deserializeCipherText(serializedCipherText: string): CipherText {
         const cipherText = this._seal.CipherText();
         cipherText.load(this._context, serializedCipherText);
         return cipherText;
     }
 
-    encrypt(array: number[]): CipherText {
+    public getSlotCount(): number {
+        return this._encoder.slotCount;
+    }
+
+    public arrayZipper(arrays: any[][]): {
+        zippedData: any[][];
+        chunkSize: number;
+    } {
+        const slotCount = this._encoder.slotCount;
+        const chunkSize = Math.pow(2, Math.ceil(Math.log2(arrays.reduce((maxLen, array) => Math.max(maxLen, array.length), 0))));
+        const sliceCount = Math.floor(slotCount / chunkSize);
+
+        let arrayIndex = 0;
+        return {
+            zippedData: Array.from({ length: Math.ceil(arrays.length / sliceCount) }, () => {
+                const newArray = new Array(slotCount).fill(0);
+
+                for (let cnt = 0; cnt < sliceCount && arrayIndex < arrays.length; cnt++, arrayIndex++) {
+                    const startIndex = cnt * chunkSize;
+                    arrays[arrayIndex].forEach((value, index) => {
+                        newArray[startIndex + index] = value;
+                    });
+                }
+
+                return newArray;
+            }),
+            chunkSize: chunkSize
+        };
+    }
+
+    public arrayUnZipper(arrays: any[][], chunkSize: number): any[][] {
+        const slotCount = this._encoder.slotCount;
+        const result: any[][] = [];
+        const sliceCount = Math.floor(slotCount / chunkSize);
+
+        arrays.forEach(array => {
+            for (let cnt = 0; cnt < sliceCount; cnt++) {
+                const startIndex = cnt * chunkSize;
+                const chunk = array.slice(startIndex, startIndex + chunkSize);
+                if (chunk.length > 0) {
+                    result.push(chunk);
+                }
+            }
+        });
+
+        return result;
+    }
+
+    public encrypt(array: number[]): CipherText {
         const plainText = this._seal.PlainText();
         const cipherText = this._seal.CipherText();
         this._encoder.encode(Float64Array.from(array), this._scale, plainText);
@@ -166,44 +214,56 @@ export class CKKSSeal {
         return cipherText;
     }
 
-    decrypt(cipherText: CipherText): number[] {
+    public decrypt(cipherText: CipherText): number[] {
         const plainText = this._seal.PlainText();
         this._decryptor.decrypt(cipherText, plainText);
-        const decoded = this._encoder.decode(plainText);
-        return Array.from(decoded);
+        const decoded = Array.from(this._encoder.decode(plainText));
+        return decoded;
     }
 
-    rotate(cipherText: CipherText, steps: number): CipherText {
-        this._evaluator.rotateVector(cipherText, -steps, this._galoisKey, cipherText);
-        return cipherText;
-    }
-
-    sum(cipherText: CipherText): CipherText {
+    public rotate(cipherText: CipherText, steps: number): CipherText {
         const result = this._seal.CipherText();
-        this._evaluator.sumElements(cipherText, this._galoisKey, this._seal.SchemeType.ckks, result);
+        this._evaluator.rotateVector(cipherText, steps, this._galoisKey, result);
         return result;
     }
 
-    add(cipherText1: CipherText, cipherText2: CipherText): CipherText {
+    public sum(cipherText: CipherText, steps?: number): CipherText {
+        if (steps) {
+            const result = cipherText.clone();
+            const rotationCount = Math.ceil(Math.log2(steps));
+
+            for (let cnt = 0; cnt < rotationCount; cnt++) {
+                this._evaluator.add(result, this.rotate(result, Math.pow(2, cnt)), result);
+            }
+            return result;
+        }
+        else {
+            const result = this._seal.CipherText();
+            this._evaluator.sumElements(cipherText, this._galoisKey, this._seal.SchemeType.ckks, result);
+            return result;
+        }
+    }
+
+    public add(cipherText1: CipherText, cipherText2: CipherText): CipherText {
         const result = this._seal.CipherText();
         this._evaluator.add(cipherText1, cipherText2, result);
         return result;
     }
 
-    subtract(cipherText1: CipherText, cipherText2: CipherText): CipherText {
+    public subtract(cipherText1: CipherText, cipherText2: CipherText): CipherText {
         const result = this._seal.CipherText();
         this._evaluator.sub(cipherText1, cipherText2, result);
         return result;
     }
 
-    multiply(cipherText1: CipherText, cipherText2: CipherText): CipherText {
+    public multiply(cipherText1: CipherText, cipherText2: CipherText): CipherText {
         const result = this._seal.CipherText();
         this._evaluator.multiply(cipherText1, cipherText2, result);
         this._evaluator.relinearize(result, this._relinKeys, result);
         return result;
     }
 
-    negate(cipherText: CipherText): CipherText {
+    public negate(cipherText: CipherText): CipherText {
         const result = this._seal.CipherText();
         this._evaluator.negate(cipherText, result);
         return result;

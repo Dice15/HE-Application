@@ -1,6 +1,6 @@
 'use client'
 
-interface ProgressBarProps {
+export interface ProgressBarProps {
     progress: number;
 }
 

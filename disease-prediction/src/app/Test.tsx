@@ -4,17 +4,18 @@ import { CKKSSeal, CKKSSealBuilder } from '@/core/modules/homomorphic-encryption
 import { NodeSealProvider } from '@/core/modules/homomorphic-encryption/node-seal';
 import axios from 'axios';
 import { useCallback, useEffect, useState } from 'react';
-import Papa from 'papaparse';
 import { KidneyDisease } from '@/core/modules/disease-prediction/kidney-disease';
 import Swal from 'sweetalert2';
 import PatientTable from './_components/PatientTable';
 import ProgressBar from './_components/ProgressBar';
+import PatientUploader from './_components/PatientUploader';
 
 export default function Test() {
     const [ckksSeal, setCkksSeal] = useState<CKKSSeal>();
-    const [originalPatientsInfo, setOriginalPatientsInfo] = useState<any[]>([]);
-    const [predictionResults, setPredictionResults] = useState<boolean[]>([]);
+    const [patients, setPatients] = useState<any[]>([]);
+    const [predictions, setPredictions] = useState<boolean[]>([]);
     const [progress, setProgress] = useState<number>(0);
+
 
     const showLoading = useCallback((title: string, text: string): void => {
         Swal.fire({
@@ -27,93 +28,70 @@ export default function Test() {
         });
     }, []);
 
+
     const hideLoading = useCallback((): void => {
         Swal.close();
     }, []);
 
-    const predicting = useCallback((ckksSeal: CKKSSeal, preprocessPatientsInfo: any[]): void => {
-        const features = ['age', 'bp', 'sg', 'al', 'su', 'rbc', 'pc', 'pcc', 'ba', 'bgr', 'bu', 'sc', 'sod', 'pot', 'hemo', 'pcv', 'wc', 'rc', 'htn', 'dm', 'cad', 'appet', 'pe', 'ane'];
 
-        const totalPredictions = preprocessPatientsInfo.length;
-        let completedPredictions = 0;
-
-        const predictions = preprocessPatientsInfo.map((patientInfo, index) => {
+    const predicting = useCallback((ckksSeal: CKKSSeal, zippedData: any[][], chunkSize: number, afterPredict: (prediction: number[], index: number) => void): Promise<void>[] => {
+        return zippedData.map((data, index) => {
             const body = {
-                serializedPatientInfo: ckksSeal.serializeCipherText(ckksSeal.encrypt(features.map(feature => (patientInfo[feature] || 0)))),
+                serializedPatientInfo: ckksSeal.serializeCipherText(ckksSeal.encrypt(data)),
+                chunkSize: chunkSize,
                 serializedPublickey: ckksSeal.serializePublicKey(),
                 serializedRelinKeys: ckksSeal.serializeRelinKeys(),
                 serializedGaloisKey: ckksSeal.serializeGaloisKey(),
             };
 
-            return axios.post('/api/diseasePrediction/kidneyDisease', body).then((response) => {
-                const { prediction } = response.data;
-                const result = ckksSeal.decrypt(ckksSeal.deserializeCipherText(prediction))[0] < 0.5;
-
-                setPredictionResults(prevResults => {
-                    const newResults = [...prevResults];
-                    newResults[index] = result;
-                    return newResults;
+            return axios.post('/api/diseasePrediction/kidneyDisease', body)
+                .then((response) => {
+                    afterPredict(ckksSeal.decrypt(ckksSeal.deserializeCipherText(response.data.prediction as string)), index);
+                })
+                .catch(error => {
+                    console.error("Prediction error:", error);
                 });
+        })
+    }, []);
 
-                completedPredictions++;
-                setProgress((completedPredictions / totalPredictions) * 100);
-            }).catch(error => {
-                console.error("Prediction error:", error);
-            });
-        });
 
-        Promise.allSettled(predictions).then(() => {
-            hideLoading();
-        });
-    }, [hideLoading]);
+    useEffect(() => {
+        if (ckksSeal && patients.length > 0) {
+            showLoading('Predicting...', 'Predicting patient information.');
+            setProgress(0);
+            setPredictions(Array.from({ length: patients.length }, () => false));
 
-    const handleUploadCSV = useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
-        if (ckksSeal) {
-            showLoading('Loading...', 'Uploading CSV file.');
-            const minLoadingTime = 2000;
-            const startTime = Date.now();
+            setTimeout(() => {
+                const features = KidneyDisease.getFeatures();
+                const samples = KidneyDisease.transformToMLData(JSON.parse(JSON.stringify(patients, null, 2)) as any[]);
+                const { zippedData, chunkSize } = ckksSeal.arrayZipper(samples.map((sample) => features.map(feature => (sample[feature] || 0))));
+                const slotCount = ckksSeal.getSlotCount();
 
-            const file = event.target.files?.[0];
-            if (file) {
-                Papa.parse(file, {
-                    header: true,
-                    delimiter: ',',
-                    skipEmptyLines: true,
-                    dynamicTyping: true,
-                    complete: (results) => {
-                        if (results.errors.length) {
-                            Swal.fire({
-                                icon: 'error',
-                                title: 'Oops...',
-                                text: 'Error processing the file!',
+                let progressCounter = 0;
+                Promise.allSettled(
+                    predicting(ckksSeal, zippedData, chunkSize, (prediction: number[], index: number) => {
+                        const sliceCount = Math.floor(slotCount / chunkSize);
+                        const startIndex = sliceCount * index;
+
+                        for (let i = 0; i < sliceCount; i++) {
+                            const result = KidneyDisease.isDisease(prediction[i * chunkSize] as number);
+
+                            setPredictions(prevResults => {
+                                const newResults = [...prevResults];
+                                newResults[startIndex + i] = result;
+                                return newResults;
                             });
-                            console.error("Parsing error:", results.errors);
-                        } else {
-                            const data = (results.data as any[]).filter((_, index) => index % 10 === 0);
-                            const result = Array.from({ length: data.length }, () => false);
-                            const origin = JSON.parse(JSON.stringify(data, null, 2)) as any[];
-                            const remainTime = minLoadingTime - (Date.now() - startTime);
-
-                            setTimeout(() => {
-                                setPredictionResults(result);
-                                setOriginalPatientsInfo(origin);
-                                setProgress(0);
-                                predicting(ckksSeal, KidneyDisease.preprocessData(data));
-                            }, remainTime > 0 ? remainTime : 0);
                         }
-                    },
-                    error: (error) => {
-                        Swal.fire({
-                            icon: 'error',
-                            title: 'Oops...',
-                            text: 'Error reading the file!',
-                        });
-                        console.error("Parsing error:", error);
-                    }
+
+                        setProgress((++progressCounter / zippedData.length) * 100);
+                    })
+                ).then(() => {
+                    setTimeout(() => { hideLoading() }, 2000);
                 });
-            }
+            }, 2000);
         }
-    }, [ckksSeal, predicting, showLoading]);
+    }, [ckksSeal, patients, showLoading, hideLoading, predicting])
+
 
     useEffect(() => {
         showLoading('Loading...', 'Node Seal is being initialized.');
@@ -129,7 +107,8 @@ export default function Test() {
                     setCkksSeal(ckksLibray);
                     hideLoading();
                 }, remainTime > 0 ? remainTime : 0)
-            } catch (error) {
+            }
+            catch (error) {
                 console.error("An error occurred:", error);
                 Swal.fire({
                     icon: 'error',
@@ -140,17 +119,17 @@ export default function Test() {
         })();
     }, [hideLoading, showLoading]);
 
+
     return (
         <div style={{ width: '100%', height: '100%', backgroundColor: 'white', display: "flex", flexDirection: "column", alignItems: 'center' }}>
             <div style={{ width: '100%', height: '150px', paddingTop: '10px', display: 'flex', flexDirection: "column", justifyContent: 'center', alignItems: 'center' }}>
-                <h1>환자 정보 CSV파일 업로드</h1>
-                <input type="file" accept=".csv" onChange={handleUploadCSV} style={{ marginTop: '30px' }} disabled={ckksSeal === undefined} />
+                <PatientUploader title={"환자 정보 CSV파일 업로드"} ckksSeal={ckksSeal} setPatientsInfo={setPatients} />
             </div>
             <div style={{ width: 'calc(100% - 40px)', height: '24px', padding: '3px', display: 'flex', flexDirection: "column", justifyContent: 'center', alignItems: 'center' }}>
                 <ProgressBar progress={progress} />
             </div>
             <div style={{ width: 'calc(100% - 40px)', height: 'calc(100% - 160px - 30px - 20px)', padding: '10px 20px', display: 'flex', flexDirection: "column", alignItems: 'center' }}>
-                <PatientTable title="환자 정보" data={originalPatientsInfo} result={predictionResults} />
+                <PatientTable title={"환자 정보"} data={patients} result={predictions} />
             </div>
         </div>
     )

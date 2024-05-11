@@ -1,12 +1,12 @@
 "use client"
 
-export interface TableProps {
+export interface PatientTableProps {
     title: string;
     data: any[];
     result: boolean[];
 }
 
-export default function PatientTable({ title, data, result }: TableProps) {
+export default function PatientTable({ title, data, result }: PatientTableProps) {
     return (
         <div style={{ width: '100%', height: '100%', display: 'flex', flexDirection: "column", alignItems: 'center' }}>
             <h2>{title}</h2>
