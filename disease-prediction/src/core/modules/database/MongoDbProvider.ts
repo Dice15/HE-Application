@@ -8,20 +8,15 @@ import { MongoClient, Db } from "mongodb";
 export default class MongoDbProvider {
     private static client: MongoClient | undefined = undefined;
     private static dbInstance: Db | undefined = undefined;
-    private static uri: string = process.env.MONGODB_URI || "";
+    private static uri: string = "";
 
-    /**
-     * 생성자는 private로 설정되어 외부에서 인스턴스 생성을 방지합니다.
-     */
     private constructor() { }
 
-    /**
-     * MongoDB 서버에 연결합니다. 기존 연결이 있을 경우 재사용합니다.
-     * @returns {Promise<MongoClient>} 연결된 MongoClient 인스턴스를 반환합니다.
-     */
-    public static async connectDb(): Promise<MongoClient> {
-        if (MongoDbProvider.client) {
+    public static async connectDb(uri: string): Promise<MongoClient> {
+        if (MongoDbProvider.uri === uri && MongoDbProvider.client) {
             return MongoDbProvider.client;
+        } else {
+            MongoDbProvider.uri = uri;
         }
 
         if (!MongoDbProvider.uri) {
@@ -44,9 +39,6 @@ export default class MongoDbProvider {
         return MongoDbProvider.client;
     }
 
-    /**
-     * 현재의 MongoDB 연결을 종료하고 모든 관련 인스턴스를 해제합니다.
-     */
     public static async disconnectDb(): Promise<void> {
         if (MongoDbProvider.client) {
             await MongoDbProvider.client.close();
@@ -55,13 +47,13 @@ export default class MongoDbProvider {
         }
     }
 
-    /**
-     * 요청된 데이터베이스 인스턴스를 반환합니다. 필요한 경우 URI를 사용하여 데이터베이스에 연결합니다.
-     * @returns {Promise<Db>} 데이터베이스 인스턴스를 반환합니다.
-     */
+    public static isConnected(): boolean {
+        return MongoDbProvider.client !== undefined;
+    }
+
     public static async getDb(): Promise<Db> {
         if (!MongoDbProvider.client) {
-            await MongoDbProvider.connectDb();
+            throw new Error("Connect Db first.");
         }
 
         if (!MongoDbProvider.dbInstance && MongoDbProvider.client) {

@@ -4,7 +4,7 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "../auth/[...nextauth]";
 
 export default async function handler(request: NextApiRequest, response: NextApiResponse) {
-    const db = await MongoDbProvider.getDb(process.env.MONGODB_URI);
+    const db = await MongoDbProvider.getDb();
     const session = await getServerSession(request, response, authOptions)
 
     if (!session) {
