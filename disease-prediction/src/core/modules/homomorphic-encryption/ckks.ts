@@ -74,7 +74,7 @@ export class CKKSSealBuilder {
             const publicKey = keyGenerator.createPublicKey();
             const secretKey = keyGenerator.secretKey();
             const relinKeys = keyGenerator.createRelinKeys();
-            const galoisKey = keyGenerator.createGaloisKeys();  // Int32Array.from([1, 2, 4, 8, 16])파라미터 주고 로테이션
+            const galoisKey = keyGenerator.createGaloisKeys(Int32Array.from([1, 2, 4, 8, 16]));  // Int32Array.from([1, 2, 4, 8, 16])파라미터 주고 로테이션
 
             this._serializedPublicKey && publicKey.load(context, this._serializedPublicKey);
             this._serializedRelinKeys && relinKeys.load(context, this._serializedRelinKeys);

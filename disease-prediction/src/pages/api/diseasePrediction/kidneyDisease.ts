@@ -3,6 +3,7 @@ import { NodeSealProvider } from '@/core/modules/homomorphic-encryption/node-sea
 import { NextApiRequest, NextApiResponse } from 'next';
 import { CipherText } from 'node-seal/implementation/cipher-text';
 
+
 export const config = {
     api: {
         bodyParser: {

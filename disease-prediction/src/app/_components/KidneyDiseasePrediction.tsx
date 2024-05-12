@@ -6,11 +6,12 @@ import axios from 'axios';
 import { useCallback, useEffect, useState } from 'react';
 import { KidneyDisease } from '@/core/modules/disease-prediction/kidney-disease';
 import Swal from 'sweetalert2';
-import PatientTable from './_components/PatientTable';
-import ProgressBar from './_components/ProgressBar';
-import PatientUploader from './_components/PatientUploader';
+import PatientTable from './PatientTable';
+import ProgressBar from './ProgressBar';
+import PatientUploader from './PatientUploader';
 
-export default function Test() {
+
+export default function KidneyDiseasePrediction() {
     const [ckksSeal, setCkksSeal] = useState<CKKSSeal>();
     const [patients, setPatients] = useState<any[]>([]);
     const [predictions, setPredictions] = useState<boolean[]>([]);
@@ -102,6 +103,39 @@ export default function Test() {
             try {
                 const ckksLibray = new CKKSSealBuilder().build(await NodeSealProvider.getSeal());
                 const remainTime = minLoadingTime - (Date.now() - startTime);
+
+                axios.post('/api/keyManager/publicKey',
+                    {
+                        serializedPublickey: ckksLibray.serializePublicKey()
+                    })
+                    .then((response) => {
+                        console.log(response)
+                    })
+                    .catch(error => {
+                        console.error("Prediction error:", error);
+                    });
+
+                axios.post('/api/keyManager/relinKeys',
+                    {
+                        serializedRelinKeys: ckksLibray.serializeRelinKeys()
+                    })
+                    .then((response) => {
+                        console.log(response)
+                    })
+                    .catch(error => {
+                        console.error("Prediction error:", error);
+                    });
+
+                axios.post('/api/keyManager/galoisKey',
+                    {
+                        serializedGaloisKey: ckksLibray.serializeGaloisKey()
+                    })
+                    .then((response) => {
+                        console.log(response)
+                    })
+                    .catch(error => {
+                        console.error("Prediction error:", error);
+                    });
 
                 setTimeout(() => {
                     setCkksSeal(ckksLibray);
