@@ -8,7 +8,7 @@ import { MongoClient, Db } from "mongodb";
 export default class MongoDbProvider {
     private static client: MongoClient | undefined = undefined;
     private static dbInstance: Db | undefined = undefined;
-    private static uri: string;
+    private static uri: string = process.env.MONGODB_URI || "";
 
     /**
      * 생성자는 private로 설정되어 외부에서 인스턴스 생성을 방지합니다.
@@ -16,44 +16,31 @@ export default class MongoDbProvider {
     private constructor() { }
 
     /**
-     * MongoDB 서버에 연결합니다. 새로운 URI가 제공되면 연결을 재설정하며,
-     * 기존 연결이 있을 경우 재사용합니다. 연결 실패 시 예외가 발생합니다.
-     * @param {string} uri - MongoDB 서버의 URI입니다.
+     * MongoDB 서버에 연결합니다. 기존 연결이 있을 경우 재사용합니다.
      * @returns {Promise<MongoClient>} 연결된 MongoClient 인스턴스를 반환합니다.
      */
-    public static async connectDb(uri: string): Promise<MongoClient> {
-        if (global._mongoUri === uri && global._mongo) {
-            // 글로벌 URI 및 클라이언트를 확인하고 재사용합니다.
-            if (MongoDbProvider.uri !== uri || !MongoDbProvider.client) {
-                MongoDbProvider.uri = global._mongoUri;
-                MongoDbProvider.client = global._mongo;
-            }
+    public static async connectDb(): Promise<MongoClient> {
+        if (MongoDbProvider.client) {
+            return MongoDbProvider.client;
         }
-        else if (MongoDbProvider.uri === uri && MongoDbProvider.client) {
-            // 기존 URI 및 클라이언트를 확인하고 재사용합니다.
-            if (process.env.NODE_ENV === 'development') {
-                global._mongoUri = uri;
-                global._mongo = MongoDbProvider.client;
-            }
+
+        if (!MongoDbProvider.uri) {
+            throw new Error("MongoDB URI is not defined.");
         }
-        else {
-            // 새로운 연결을 설정합니다.
-            await MongoDbProvider.disconnectDb();
-            MongoDbProvider.uri = uri;
-            MongoDbProvider.client = new MongoClient(uri);
-            try {
-                await MongoDbProvider.client.connect();
-                if (process.env.NODE_ENV === 'development') {
-                    global._mongo = MongoDbProvider.client;
-                    global._mongoUri = uri;
-                }
-            } catch (err) {
-                MongoDbProvider.uri = "";
-                MongoDbProvider.client = undefined;
-                console.error("MongoDB connection failed:", err);
-                throw err;
-            }
+
+        MongoDbProvider.client = new MongoClient(MongoDbProvider.uri, {
+            serverSelectionTimeoutMS: 30000, // 타임아웃 설정
+        });
+
+        try {
+            await MongoDbProvider.client.connect();
+            console.log("MongoDB connected successfully");
+        } catch (err) {
+            console.error("MongoDB connection failed:", err);
+            MongoDbProvider.client = undefined;
+            throw err;
         }
+
         return MongoDbProvider.client;
     }
 
@@ -70,18 +57,21 @@ export default class MongoDbProvider {
 
     /**
      * 요청된 데이터베이스 인스턴스를 반환합니다. 필요한 경우 URI를 사용하여 데이터베이스에 연결합니다.
-     * @param {string} dbName - 요청할 데이터베이스의 이름입니다.
-     * @param {string} [uri] - (선택적) MongoDB 연결 URI입니다.
      * @returns {Promise<Db>} 데이터베이스 인스턴스를 반환합니다.
      */
-    public static async getDb(uri: string): Promise<Db> {
-        await MongoDbProvider.connectDb(uri);
-        if (!MongoDbProvider.dbInstance) {
-            if (!MongoDbProvider.client) {
-                throw new Error("MongoDB client is not initialized. Call connectDb(uri) first.");
-            }
+    public static async getDb(): Promise<Db> {
+        if (!MongoDbProvider.client) {
+            await MongoDbProvider.connectDb();
+        }
+
+        if (!MongoDbProvider.dbInstance && MongoDbProvider.client) {
             MongoDbProvider.dbInstance = MongoDbProvider.client.db();
         }
+
+        if (!MongoDbProvider.dbInstance) {
+            throw new Error("Failed to get MongoDB instance.");
+        }
+
         return MongoDbProvider.dbInstance;
     }
-} 
+}
