@@ -80,9 +80,9 @@ export default async function handler(request: NextApiRequest, response: NextApi
     switch (request.method) {
         case "POST": {
             const { serializedPatientInfo, chunkSize } = request.body;
-            const serializedPublickey = await db.collection("publickey").findOne({ id: session.user.id });
-            const serializedRelinKeys = await db.collection("relinkeys").findOne({ id: session.user.id });
-            const serializedGaloisKey = await db.collection("galoiskey").findOne({ id: session.user.id });
+            const serializedPublickey = (await db.collection("publickey").findOne({ id: session.user.id }))?.publickey;
+            const serializedRelinKeys = (await db.collection("relinkeys").findOne({ id: session.user.id }))?.relinkeys;
+            const serializedGaloisKey = (await db.collection("galoiskey").findOne({ id: session.user.id }))?.galoiskey;
 
             if (!serializedPublickey || !serializedRelinKeys || !serializedGaloisKey) {
                 response.status(502).json({ message: "Key error" });
@@ -92,9 +92,9 @@ export default async function handler(request: NextApiRequest, response: NextApi
             try {
                 const nodeSeal = await NodeSealProvider.getSeal();
                 const ckksSeal = new CKKSSealBuilder()
-                    .deserializePublicKey(serializedPublickey.publicKey as string)
-                    .deserializeRelinKeys(serializedRelinKeys.relinkeys as string)
-                    .deserializeGaloisKey(serializedGaloisKey.galoiskey as string)
+                    .deserializePublicKey(serializedPublickey)
+                    .deserializeRelinKeys(serializedRelinKeys)
+                    .deserializeGaloisKey(serializedGaloisKey)
                     .build(nodeSeal);
                 const patientInfo = ckksSeal.deserializeCipherText(serializedPatientInfo as string);
                 const prediction = predictKidneyDisease(ckksSeal, patientInfo, chunkSize as number);
