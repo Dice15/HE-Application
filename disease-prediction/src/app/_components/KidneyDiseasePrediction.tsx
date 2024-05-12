@@ -35,14 +35,29 @@ export default function KidneyDiseasePrediction() {
     }, []);
 
 
+    const keySender = (ckksSeal: CKKSSeal) => {
+        return [
+            axios.post('/api/keyManager/publicKey', { serializedPublickey: ckksSeal.serializePublicKey() }),
+            axios.post('/api/keyManager/relinKeys', { serializedRelinKeys: ckksSeal.serializeRelinKeys() }),
+            axios.post('/api/keyManager/galoisKey', { serializedGaloisKey: ckksSeal.serializeGaloisKey() })
+        ];
+    }
+
+
+    const keyRemover = () => {
+        return [
+            axios.delete('/api/keyManager/publicKey'),
+            axios.delete('/api/keyManager/relinKeys'),
+            axios.delete('/api/keyManager/galoisKey'),
+        ];
+    }
+
+
     const predicting = useCallback((ckksSeal: CKKSSeal, zippedData: any[][], chunkSize: number, afterPredict: (prediction: number[], index: number) => void): Promise<void>[] => {
         return zippedData.map((data, index) => {
             const body = {
                 serializedPatientInfo: ckksSeal.serializeCipherText(ckksSeal.encrypt(data)),
                 chunkSize: chunkSize,
-                serializedPublickey: ckksSeal.serializePublicKey(),
-                serializedRelinKeys: ckksSeal.serializeRelinKeys(),
-                serializedGaloisKey: ckksSeal.serializeGaloisKey(),
             };
 
             return axios.post('/api/diseasePrediction/kidneyDisease', body)
@@ -69,26 +84,30 @@ export default function KidneyDiseasePrediction() {
                 const slotCount = ckksSeal.getSlotCount();
 
                 let progressCounter = 0;
-                Promise.allSettled(
-                    predicting(ckksSeal, zippedData, chunkSize, (prediction: number[], index: number) => {
-                        const sliceCount = Math.floor(slotCount / chunkSize);
-                        const startIndex = sliceCount * index;
+                Promise.allSettled(keySender(ckksSeal)).then(() => {
+                    Promise.allSettled(
+                        predicting(ckksSeal, zippedData, chunkSize, (prediction: number[], index: number) => {
+                            const sliceCount = Math.floor(slotCount / chunkSize);
+                            const startIndex = sliceCount * index;
 
-                        for (let i = 0; i < sliceCount; i++) {
-                            const result = KidneyDisease.isDisease(prediction[i * chunkSize] as number);
+                            for (let i = 0; i < sliceCount; i++) {
+                                const result = KidneyDisease.isDisease(prediction[i * chunkSize] as number);
 
-                            setPredictions(prevResults => {
-                                const newResults = [...prevResults];
-                                newResults[startIndex + i] = result;
-                                return newResults;
-                            });
-                        }
+                                setPredictions(prevResults => {
+                                    const newResults = [...prevResults];
+                                    newResults[startIndex + i] = result;
+                                    return newResults;
+                                });
+                            }
 
-                        setProgress((++progressCounter / zippedData.length) * 100);
-                    })
-                ).then(() => {
-                    setTimeout(() => { hideLoading() }, 2000);
-                });
+                            setProgress((++progressCounter / zippedData.length) * 100);
+                        })
+                    ).then(() => {
+                        Promise.allSettled(keyRemover()).then(() => {
+                            setTimeout(() => { hideLoading() }, 2000);
+                        })
+                    });
+                })
             }, 2000);
         }
     }, [ckksSeal, patients, showLoading, hideLoading, predicting])
@@ -103,39 +122,6 @@ export default function KidneyDiseasePrediction() {
             try {
                 const ckksLibray = new CKKSSealBuilder().build(await NodeSealProvider.getSeal());
                 const remainTime = minLoadingTime - (Date.now() - startTime);
-
-                axios.post('/api/keyManager/publicKey',
-                    {
-                        serializedPublickey: ckksLibray.serializePublicKey()
-                    })
-                    .then((response) => {
-                        console.log(response)
-                    })
-                    .catch(error => {
-                        console.error("Prediction error:", error);
-                    });
-
-                axios.post('/api/keyManager/relinKeys',
-                    {
-                        serializedRelinKeys: ckksLibray.serializeRelinKeys()
-                    })
-                    .then((response) => {
-                        console.log(response)
-                    })
-                    .catch(error => {
-                        console.error("Prediction error:", error);
-                    });
-
-                axios.post('/api/keyManager/galoisKey',
-                    {
-                        serializedGaloisKey: ckksLibray.serializeGaloisKey()
-                    })
-                    .then((response) => {
-                        console.log(response)
-                    })
-                    .catch(error => {
-                        console.error("Prediction error:", error);
-                    });
 
                 setTimeout(() => {
                     setCkksSeal(ckksLibray);

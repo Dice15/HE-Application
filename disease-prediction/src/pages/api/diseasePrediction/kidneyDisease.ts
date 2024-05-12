@@ -1,7 +1,10 @@
 import { CKKSSeal, CKKSSealBuilder } from '@/core/modules/homomorphic-encryption/ckks';
 import { NodeSealProvider } from '@/core/modules/homomorphic-encryption/node-seal';
 import { NextApiRequest, NextApiResponse } from 'next';
+import { getServerSession } from 'next-auth';
 import { CipherText } from 'node-seal/implementation/cipher-text';
+import { authOptions } from '../auth/[...nextauth]';
+import MongoDbProvider from '@/core/modules/database/MongoDbProvider';
 
 
 export const config = {
@@ -66,21 +69,46 @@ function predictKidneyDisease(ckksSeal: CKKSSeal, inputs: CipherText, chunkSize:
 
 
 export default async function handler(request: NextApiRequest, response: NextApiResponse) {
-    const { serializedPatientInfo, chunkSize, serializedPublickey, serializedRelinKeys, serializedGaloisKey } = request.body;
+    const db = await MongoDbProvider.getDb(process.env.MONGODB_URI);
+    const session = await getServerSession(request, response, authOptions)
 
-    try {
-        const nodeSeal = await NodeSealProvider.getSeal();
-        const ckksSeal = new CKKSSealBuilder()
-            .deserializePublicKey(serializedPublickey)
-            .deserializeRelinKeys(serializedRelinKeys)
-            .deserializeGaloisKey(serializedGaloisKey)
-            .build(nodeSeal);
-        const patientInfo = ckksSeal.deserializeCipherText(serializedPatientInfo as string);
-        const prediction = predictKidneyDisease(ckksSeal, patientInfo, chunkSize as number);
-
-        response.status(200).json({ message: "정상적으로 처리되었습니다.", prediction: ckksSeal.serializeCipherText(prediction) });
+    if (!session) {
+        response.status(401).json({ message: "Unauthorized", data: null });
+        return;
     }
-    catch (e) {
-        response.status(502).json({ message: e, prediction: null });
+
+    switch (request.method) {
+        case "POST": {
+            const { serializedPatientInfo, chunkSize } = request.body;
+            const serializedPublickey = await db.collection("publickey").findOne({ id: session.user.id });
+            const serializedRelinKeys = await db.collection("relinkeys").findOne({ id: session.user.id });
+            const serializedGaloisKey = await db.collection("galoiskey").findOne({ id: session.user.id });
+
+            if (!serializedPublickey || !serializedRelinKeys || !serializedGaloisKey) {
+                response.status(502).json({ message: "Key error" });
+                return;
+            }
+
+            try {
+                const nodeSeal = await NodeSealProvider.getSeal();
+                const ckksSeal = new CKKSSealBuilder()
+                    .deserializePublicKey(serializedPublickey.publicKey as string)
+                    .deserializeRelinKeys(serializedRelinKeys.relinkeys as string)
+                    .deserializeGaloisKey(serializedGaloisKey.galoiskey as string)
+                    .build(nodeSeal);
+                const patientInfo = ckksSeal.deserializeCipherText(serializedPatientInfo as string);
+                const prediction = predictKidneyDisease(ckksSeal, patientInfo, chunkSize as number);
+
+                response.status(200).json({ message: "정상적으로 처리되었습니다.", prediction: ckksSeal.serializeCipherText(prediction) });
+            }
+            catch (error) {
+                response.status(502).json({ message: "Pridiction error", error: error });
+            }
+            break;
+        }
+        default: {
+            response.setHeader("Allow", ["POST"]);
+            response.status(405).end(`Method ${request.method} Not Allowed`);
+        }
     }
 }
