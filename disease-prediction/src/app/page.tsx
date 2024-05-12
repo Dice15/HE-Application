@@ -5,15 +5,12 @@ import { getServerSession } from "next-auth/next";
 import KidneyDiseasePrediction from "./_components/KidneyDiseasePrediction";
 
 export default async function Home() {
-  const session = await getServerSession(authOptions);
+  const isAuth = await getServerSession(authOptions) !== null;
 
   return (
     <main className={styles.wrapper}>
-      <div style={{ width: '100%', height: '30px' }}>
-        <AuthTopBar isAuth={session !== null} />
-      </div>
-      <div style={{ width: '100%', height: 'calc(100% - 30px)' }}>
-        <KidneyDiseasePrediction />
+      <div style={{ width: '100%', height: '100%' }}>
+        {isAuth ? <KidneyDiseasePrediction /> : <AuthTopBar isAuth={isAuth} />}
       </div>
     </main>
   );
