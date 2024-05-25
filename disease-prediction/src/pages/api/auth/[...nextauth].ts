@@ -66,7 +66,7 @@ export const authOptions: AuthOptions = {
     secret: process.env.NEXTAUTH_SECRET,
 
     // 데이터베이스 어댑터: MongoDB를 사용하도록 설정합니다.
-    adapter: MongoDBAdapter(MongoDbProvider.connectDb(process.env.MONGODB_URI)),
+    //adapter: MongoDBAdapter(MongoDbProvider.connectDb(process.env.MONGODB_URI)),
 }
 
 
