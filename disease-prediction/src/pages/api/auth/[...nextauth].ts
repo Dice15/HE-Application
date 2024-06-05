@@ -1,5 +1,3 @@
-import MongoDbProvider from "@/core/modules/database/MongoDbProvider";
-import { MongoDBAdapter } from "@next-auth/mongodb-adapter";
 import NextAuth, { AuthOptions, Session, User } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 import { JWT } from "next-auth/jwt";
@@ -62,11 +60,7 @@ export const authOptions: AuthOptions = {
         },
     },
 
-    // 비밀 키: JWT 토큰을 서명하거나 검증할 때 사용됩니다.
     secret: process.env.NEXTAUTH_SECRET,
-
-    // 데이터베이스 어댑터: MongoDB를 사용하도록 설정합니다.
-    //adapter: MongoDBAdapter(MongoDbProvider.connectDb(process.env.MONGODB_URI)),
 }
 
 

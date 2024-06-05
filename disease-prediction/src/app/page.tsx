@@ -2,7 +2,7 @@ import styles from "./page.module.css";
 import { authOptions } from "@/pages/api/auth/[...nextauth]";
 import AuthTopBar from "./_components/AuthTopBar";
 import { getServerSession } from "next-auth/next";
-import KidneyDiseasePrediction from "./_components/KidneyDiseasePrediction";
+import KidneyDiseasePrediction from "./disease/kidney/_components/KidneyDiseasePrediction";
 
 export default async function Home() {
   const isAuth = await getServerSession(authOptions) !== null;

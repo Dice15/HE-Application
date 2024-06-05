@@ -7,12 +7,11 @@ import Swal from 'sweetalert2';
 import styled from "styled-components";
 
 export interface PatientUploaderProps {
-    ckksSeal: CKKSSeal | undefined;
     setPatientsInfo: Dispatch<SetStateAction<any[]>>;
     title: string;
 }
 
-export default function PatientUploader({ ckksSeal, setPatientsInfo, title }: PatientUploaderProps) {
+export default function PatientUploader({ setPatientsInfo, title }: PatientUploaderProps) {
     const alertUploadError = useCallback((error: any) => {
         Swal.fire({
             icon: 'error',
@@ -23,29 +22,27 @@ export default function PatientUploader({ ckksSeal, setPatientsInfo, title }: Pa
     }, []);
 
     const handleUploadCSV = useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
-        if (ckksSeal) {
-            const file = event.target.files?.[0];
-            if (file) {
-                Papa.parse(file, {
-                    header: true,
-                    delimiter: ',',
-                    skipEmptyLines: true,
-                    dynamicTyping: true,
-                    complete: (results) => {
-                        results.errors.length ? alertUploadError(results.errors) : setPatientsInfo((results.data as any[]))//.filter((_, index) => index % 10 === 0))
-                    },
-                    error: (error) => {
-                        alertUploadError(error);
-                    }
-                });
-            }
+        const file = event.target.files?.[0];
+        if (file) {
+            Papa.parse(file, {
+                header: true,
+                delimiter: ',',
+                skipEmptyLines: true,
+                dynamicTyping: true,
+                complete: (results) => {
+                    results.errors.length ? alertUploadError(results.errors) : setPatientsInfo((results.data as any[]))//.filter((_, index) => index % 10 === 0))
+                },
+                error: (error) => {
+                    alertUploadError(error);
+                }
+            });
         }
-    }, [ckksSeal, setPatientsInfo, alertUploadError]);
+    }, [setPatientsInfo, alertUploadError]);
 
     return (
         <Wrapper>
             <Title>{title}</Title>
-            <CsvUploader type="file" accept=".csv" onChange={handleUploadCSV} disabled={ckksSeal === undefined} />
+            <CsvUploader type="file" accept=".csv" onChange={handleUploadCSV} />
         </Wrapper>
     );
 }
