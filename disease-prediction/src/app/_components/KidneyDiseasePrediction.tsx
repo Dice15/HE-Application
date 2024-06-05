@@ -1,6 +1,7 @@
 "use client"
 
 import { CKKSSeal, CKKSSealBuilder } from '@/core/modules/homomorphic-encryption/ckks';
+import styled from "styled-components";
 import { NodeSealProvider } from '@/core/modules/homomorphic-encryption/node-seal';
 import axios from 'axios';
 import { useCallback, useEffect, useState } from 'react';
@@ -9,15 +10,18 @@ import Swal from 'sweetalert2';
 import PatientTable from './PatientTable';
 import ProgressBar from './ProgressBar';
 import PatientUploader from './PatientUploader';
+import PredictModelSelector from './PredictModelSelector';
 
 
 export default function KidneyDiseasePrediction() {
+    const [predictModel, setPredictModel] = useState<'linear' | 'logistic'>('linear');
     const [ckksSeal, setCkksSeal] = useState<CKKSSeal>();
     const [patients, setPatients] = useState<any[]>([]);
     const [predictions, setPredictions] = useState<boolean[]>([]);
     const [progress, setProgress] = useState<number>(0);
 
 
+    // handler
     const showLoading = useCallback((title: string, text: string): void => {
         Swal.fire({
             title: title,
@@ -33,6 +37,11 @@ export default function KidneyDiseasePrediction() {
     const hideLoading = useCallback((): void => {
         Swal.close();
     }, []);
+
+
+    const handleModelChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+        setPredictModel(event.target.value as ("linear" | "logistic"));
+    };
 
 
     const keySender = (ckksSeal: CKKSSeal) => {
@@ -113,44 +122,117 @@ export default function KidneyDiseasePrediction() {
     }, [ckksSeal, patients, showLoading, hideLoading, predicting])
 
 
+    // useEffect(() => {
+    //     showLoading('Loading...', 'Node Seal is being initialized.');
+    //     const minLoadingTime = 2000;
+    //     const startTime = Date.now();
+
+    //     (async () => {
+    //         try {
+    //             const ckksLibray = new CKKSSealBuilder().build(await NodeSealProvider.getSeal());
+    //             const remainTime = minLoadingTime - (Date.now() - startTime);
+
+    //             setTimeout(() => {
+    //                 setCkksSeal(ckksLibray);
+    //                 hideLoading();
+    //             }, remainTime > 0 ? remainTime : 0)
+    //         }
+    //         catch (error) {
+    //             console.error("An error occurred:", error);
+    //             Swal.fire({
+    //                 icon: 'error',
+    //                 title: 'Oops...',
+    //                 text: 'Something went wrong!',
+    //             });
+    //         }
+    //     })();
+    // }, [hideLoading, showLoading]);
+
+
     useEffect(() => {
-        showLoading('Loading...', 'Node Seal is being initialized.');
-        const minLoadingTime = 2000;
-        const startTime = Date.now();
+        if (ckksSeal) {
+            let v1 = ckksSeal.encrypt([1]);
+            let v2 = ckksSeal.encrypt([2]);
 
-        (async () => {
-            try {
-                const ckksLibray = new CKKSSealBuilder().build(await NodeSealProvider.getSeal());
-                const remainTime = minLoadingTime - (Date.now() - startTime);
+            for (let i = 0; i < 15; i++) {
+                v1 = ckksSeal.multiply(v1, v2);
+                console.log(ckksSeal.decrypt(v1)[0]);
+            }
+        }
 
-                setTimeout(() => {
-                    setCkksSeal(ckksLibray);
-                    hideLoading();
-                }, remainTime > 0 ? remainTime : 0)
-            }
-            catch (error) {
-                console.error("An error occurred:", error);
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Oops...',
-                    text: 'Something went wrong!',
-                });
-            }
-        })();
-    }, [hideLoading, showLoading]);
+    }, [ckksSeal]);
 
 
     return (
-        <div style={{ width: '100%', height: '100%', backgroundColor: 'white', display: "flex", flexDirection: "column", alignItems: 'center' }}>
-            <div style={{ width: '100%', height: '150px', paddingTop: '10px', display: 'flex', flexDirection: "column", justifyContent: 'center', alignItems: 'center' }}>
-                <PatientUploader title={"환자 정보 CSV파일 업로드"} ckksSeal={ckksSeal} setPatientsInfo={setPatients} />
-            </div>
-            <div style={{ width: 'calc(100% - 40px)', height: '24px', padding: '3px', display: 'flex', flexDirection: "column", justifyContent: 'center', alignItems: 'center' }}>
-                <ProgressBar progress={progress} />
-            </div>
+        <Wrapper>
+            <ConfigComponent>
+                <PatientUploader
+                    title={"환자 정보 CSV파일 업로드"}
+                    ckksSeal={ckksSeal}
+                    setPatientsInfo={setPatients}
+                />
+                <PredictModelSelector
+                    predictModel={predictModel}
+                    setPredictModel={setPredictModel}
+                />
+            </ConfigComponent>
+
+            <PredictingContatiner>
+                <ProgressBarField>
+                    <ProgressBar
+                        progress={progress} />
+                </ProgressBarField>
+                <StartPredictinButton>
+                    {"검사 시작"}
+                </StartPredictinButton>
+            </PredictingContatiner>
+
             <div style={{ width: 'calc(100% - 40px)', height: 'calc(100% - 160px - 30px - 20px)', padding: '10px 20px', display: 'flex', flexDirection: "column", alignItems: 'center' }}>
                 <PatientTable title={"환자 정보"} data={patients} result={predictions} />
             </div>
-        </div>
+        </Wrapper>
     )
 }
+
+
+const Wrapper = styled.div`
+    height: calc(100% - 20px);
+    width: calc(100% - 20px);
+    padding: 10px;
+    background-color: white;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+`;
+
+const ConfigComponent = styled.div`
+    height: 20%;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+`;
+
+const PredictingContatiner = styled.div`
+    height: calc(5% - 2%);
+    width: calc(100% - 4%);
+    padding: 1% 2%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+`;
+
+const ProgressBarField = styled.div`
+    height: 100%;
+    width: 85%;
+`;
+
+const StartPredictinButton = styled.button`
+    height: 100%;
+    width: 12.5%;
+    border: 2px solid #a2a2a2;
+    border-radius: 5px;
+    font-size: 1.5vh;
+    font-weight: bold;
+`;

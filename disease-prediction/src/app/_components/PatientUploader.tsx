@@ -1,7 +1,10 @@
+"use client"
+
 import { CKKSSeal } from "@/core/modules/homomorphic-encryption/ckks";
 import { Dispatch, SetStateAction, useCallback } from "react";
 import Papa from 'papaparse';
 import Swal from 'sweetalert2';
+import styled from "styled-components";
 
 export interface PatientUploaderProps {
     ckksSeal: CKKSSeal | undefined;
@@ -40,9 +43,28 @@ export default function PatientUploader({ ckksSeal, setPatientsInfo, title }: Pa
     }, [ckksSeal, setPatientsInfo, alertUploadError]);
 
     return (
-        <div style={{ width: '100%', height: '100%', display: 'flex', flexDirection: "column", justifyContent: 'center', alignItems: 'center' }}>
-            <h1>{title}</h1>
-            <input type="file" accept=".csv" onChange={handleUploadCSV} style={{ marginTop: '30px' }} disabled={ckksSeal === undefined} />
-        </div>
+        <Wrapper>
+            <Title>{title}</Title>
+            <CsvUploader type="file" accept=".csv" onChange={handleUploadCSV} disabled={ckksSeal === undefined} />
+        </Wrapper>
     );
 }
+
+const Wrapper = styled.div`
+    height: calc(70% - 2%);
+    width: calc(100% - 2%);
+    padding: 1%;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: center;
+`;
+
+const Title = styled.h1`
+    font-size: 3.5vh;
+`;
+
+const CsvUploader = styled.input`
+    margin-left: 9vw;
+    font-size: 1.5vh;
+`;

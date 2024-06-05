@@ -19,7 +19,8 @@
     "papaparse": "^5.4.1",
     "react": "^18",
     "react-dom": "^18",
-    "sweetalert2": "^11.10.8"
+    "sweetalert2": "^11.10.8",
+    "styled-components": "^6.1.6"
   },
   "devDependencies": {
     "@types/node": "^20",

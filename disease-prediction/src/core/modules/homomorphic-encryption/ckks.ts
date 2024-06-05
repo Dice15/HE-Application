@@ -21,7 +21,7 @@ export class CKKSSealBuilder {
     private _serializedRelinKeys: string | null;
 
     constructor() {
-        this._polyModulusDegree = 13;
+        this._polyModulusDegree = 14;
         this._precision = 23;
         this._scale = Math.pow(2.0, this._precision);
         this._serializedPublicKey = null;
@@ -54,13 +54,14 @@ export class CKKSSealBuilder {
     build(seal: SEALLibrary) {
         const schemeType = seal.SchemeType.ckks;
         const securityLevel = seal.SecurityLevel.tc128;
-        const polyModulusDegree = 4096;
-        const bitSizes = Int32Array.from([50, 50])
-        const coeffModulus = seal.CoeffModulus.Create(polyModulusDegree, bitSizes)
-        //const polyModulusDegree = Math.pow(2, this._polyModulusDegree);
-        //const coeffModulus = seal.CoeffModulus.Create(polyModulusDegree, Int32Array.from([40, 40, 40, 40, 40]));
-        //const bitSizes = Math.floor(seal.CoeffModulus.MaxBitCount(polyModulusDegree, securityLevel) / this._precision);
-        //const coeffModulus = seal.CoeffModulus.Create(polyModulusDegree, Int32Array.from(Array.from({ length: bitSizes }, () => this._precision)));
+        // const polyModulusDegree = 4096;
+        // const bitSizes = Int32Array.from([50, 50])
+        // const polyModulusDegree = Math.pow(2, 14);
+        // const bitSizes = Int32Array.from([23, 23, 23, 23, 23, 23, 23])
+        // const coeffModulus = seal.CoeffModulus.Create(polyModulusDegree, bitSizes)
+        const polyModulusDegree = Math.pow(2, this._polyModulusDegree);
+        const bitSizes = Math.floor(seal.CoeffModulus.MaxBitCount(polyModulusDegree, securityLevel) / this._precision);
+        const coeffModulus = seal.CoeffModulus.Create(polyModulusDegree, Int32Array.from(Array.from({ length: bitSizes }, () => this._precision)));
 
         const contextParms = seal.EncryptionParameters(schemeType);
         contextParms.setPolyModulusDegree(polyModulusDegree);
