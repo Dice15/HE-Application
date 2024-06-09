@@ -6,7 +6,7 @@ export class KidneyDisease {
     private constructor() { }
 
 
-    private static transformToMLData(data: any[]): any[] {
+    public static transformToMLData(data: any[]): any[] {
         // 수치형 데이터의 결측값을 평균값으로 대체
         const numericMeans: Record<string, number> = {
             age: 51.483375959079275,
@@ -106,18 +106,13 @@ export class KidneyDisease {
     };
 
 
-    private static getFeatures(): string[] {
+    public static getFeatures(): string[] {
         return ['age', 'bp', 'sg', 'al', 'su', 'rbc', 'pc', 'pcc', 'ba', 'bgr', 'bu', 'sc', 'sod', 'pot', 'hemo', 'pcv', 'wc', 'rc', 'htn', 'dm', 'cad', 'appet', 'pe', 'ane'];
     }
 
-
-    private static isDisease(prediction: number): boolean {
+    public static isDisease(prediction: number): boolean {
         return prediction < 0.5;
     }
-
-
-
-
 
     public static prediction(): boolean {
         return true;

@@ -208,6 +208,10 @@ export class CKKSSeal {
         return result;
     }
 
+    public createCipherText(): CipherText {
+        return this._seal.CipherText();
+    }
+
     public encrypt(array: number[]): CipherText {
         const plainText = this._seal.PlainText();
         const cipherText = this._seal.CipherText();
@@ -229,7 +233,7 @@ export class CKKSSeal {
         return result;
     }
 
-    public sum(cipherText: CipherText, steps?: number): CipherText {
+    public sumElements(cipherText: CipherText, steps?: number): CipherText {
         if (steps) {
             const result = cipherText.clone();
             const rotationCount = Math.ceil(Math.log2(steps));
@@ -268,6 +272,12 @@ export class CKKSSeal {
     public negate(cipherText: CipherText): CipherText {
         const result = this._seal.CipherText();
         this._evaluator.negate(cipherText, result);
+        return result;
+    }
+
+    public rescale(cipherText: CipherText): CipherText {
+        const result = this._seal.CipherText();
+        this._evaluator.rescaleToNext(cipherText, result);
         return result;
     }
 }

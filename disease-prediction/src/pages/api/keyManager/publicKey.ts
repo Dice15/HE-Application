@@ -3,6 +3,16 @@ import { NextApiRequest, NextApiResponse } from "next";
 import { getServerSession } from "next-auth";
 import { authOptions } from "../auth/[...nextauth]";
 
+
+export const config = {
+    api: {
+        bodyParser: {
+            sizeLimit: '10mb'
+        }
+    }
+};
+
+
 export default async function handler(request: NextApiRequest, response: NextApiResponse) {
     const db = await MongoDbProvider.connectDb(process.env.MONGODB_URI).then(() => MongoDbProvider.getDb());
     const session = await getServerSession(request, response, authOptions)
@@ -26,13 +36,16 @@ export default async function handler(request: NextApiRequest, response: NextApi
             break;
         }
         case "POST": {
-            const { serializedPublickey } = request.body;
+            const { chunk, index, totalChunks } = request.body;
+
             try {
                 const result = await db.collection("publickey").insertOne({
                     id: session.user.id,
                     name: session.user.name,
                     email: session.user.email,
-                    publickey: serializedPublickey,
+                    chunk: chunk,
+                    index: index,
+                    totalChunks: totalChunks
                 });
                 response.status(200).json({ message: "SUCCESS", data: { id: result.insertedId.toString() } });
             }
