@@ -43,28 +43,35 @@ export default function KidneyDiseasePrediction() {
         const CHUNK_SIZE_MB = 1;
         const CHUNK_SIZE_BYTES = CHUNK_SIZE_MB * 1024 * 1024;
 
-        const splitStringIntoChunks = (str: string, chunkSize: number): string[] => {
+        const splitIntoChunks = (arr: Uint8Array, chunkSize: number): Uint8Array[] => {
             const chunks = [];
-            for (let i = 0; i < str.length; i += chunkSize) {
-                chunks.push(str.slice(i, i + chunkSize));
+            for (let i = 0; i < arr.length; i += chunkSize) {
+                chunks.push(arr.slice(i, i + chunkSize));
             }
             return chunks;
         }
 
-        const sendChunks = async (url: string, chunks: string[]) => {
+        const uint8ArrayToBase64 = (arr: Uint8Array): string => {
+            let binaryString = '';
+            for (let i = 0; i < arr.length; i++) {
+                binaryString += String.fromCharCode(arr[i]);
+            }
+            return btoa(binaryString);
+        }
+
+        const sendChunks = async (url: string, chunks: Uint8Array[]) => {
             for (let i = 0; i < chunks.length; i++) {
-                console.log(url, i, chunks[i].length);
+                const base64Chunk = uint8ArrayToBase64(chunks[i]);
                 await axios.post(url, {
-                    chunk: chunks[i],
+                    chunk: base64Chunk,
                     index: i,
-                    totalChunks: chunks.length,
                 });
             }
         }
 
-        const publicKeyChunks = splitStringIntoChunks(ckksSeal.serializePublicKey(), CHUNK_SIZE_BYTES);
-        const relinKeysChunks = splitStringIntoChunks(ckksSeal.serializeRelinKeys(), CHUNK_SIZE_BYTES);
-        const galoisKeyChunks = splitStringIntoChunks(ckksSeal.serializeGaloisKey(), CHUNK_SIZE_BYTES);
+        const publicKeyChunks = splitIntoChunks(ckksSeal.serializePublicKey(), CHUNK_SIZE_BYTES);
+        const relinKeysChunks = splitIntoChunks(ckksSeal.serializeRelinKeys(), CHUNK_SIZE_BYTES);
+        const galoisKeyChunks = splitIntoChunks(ckksSeal.serializeGaloisKey(), CHUNK_SIZE_BYTES);
 
         return await Promise.allSettled([
             sendChunks('/api/keyManager/publicKey', publicKeyChunks),
@@ -72,6 +79,8 @@ export default function KidneyDiseasePrediction() {
             sendChunks('/api/keyManager/galoisKey', galoisKeyChunks)
         ]);
     }, []);
+
+
 
 
 
@@ -125,7 +134,6 @@ export default function KidneyDiseasePrediction() {
     const handleStartPredict = useCallback(async () => {
         showLoading('Loading...', 'Node Seal is being initialized.');
         const ckksSeal = await handleCreateCkksSeal(predictModel);
-        hideLoading();
 
         if (ckksSeal) {
             showLoading('Predicting...', 'Predicting patient information.');
@@ -146,6 +154,8 @@ export default function KidneyDiseasePrediction() {
                         const startIndex = sliceCount * index;
 
                         for (let i = 0; i < sliceCount; i++) {
+                            //console.log(startIndex + i, (1 / (1 + Math.exp(-prediction[i * chunkSize]))));
+                            //const result = KidneyDisease.isDisease(1 / (1 + Math.exp(- prediction[i * chunkSize])));
                             const result = KidneyDisease.isDisease(prediction[i * chunkSize] as number);
 
                             setPredictions(prevResults => {
@@ -158,7 +168,6 @@ export default function KidneyDiseasePrediction() {
                         setProgress((++progressCounter / zippedData.length) * 100);
                     })
                 ).then(() => {
-                    //setTimeout(() => { hideLoading() }, 2000);
                     Promise.allSettled(keyRemover()).then(() => {
                         setTimeout(() => { hideLoading() }, 2000);
                     })
@@ -216,7 +225,11 @@ export default function KidneyDiseasePrediction() {
 
     // useEffect(() => {
     //     const temp = async () => {
-    //         const ckksSeal = new CKKSSealBuilder(await NodeSealProvider.getSeal(), Math.pow(2, 12), 2, Math.pow(2, 20)).build();
+    //         const ckksSeal = new CKKSSealBuilder(await NodeSealProvider.getSeal(), Math.pow(2, 15), 15, Math.pow(2, 40)).build();
+    //         console.log(ckksSeal.serializePublicKey().length);
+    //         console.log(ckksSeal.serializeRelinKeys().length);
+    //         console.log(ckksSeal.serializeGaloisKey().length);
+
     //         // const encryptedIntercept = ckksSeal.encrypt([2]);
     //         // const encryptedCoefficients = ckksSeal.encrypt([2]);
     //         // const encryptedPatientsData = ckksSeal.encrypt([2]);
@@ -258,13 +271,14 @@ export default function KidneyDiseasePrediction() {
     //         //     console.log(predict.scale)
     //         // }
 
-    //         let v1 = ckksSeal.encrypt([1]);
-    //         let v2 = ckksSeal.encrypt([0.2]);
+    //         // (-0.000000357551295)**7
+    //         // let v1 = ckksSeal.encrypt([-0.000000357551295]);
+    //         // let v2 = ckksSeal.encrypt([1]);
 
-    //         for (let i = 0; i < 1; i++) {
-    //             v1 = ckksSeal.multiply(v1, v2);
-    //             console.log(i, ckksSeal.decrypt(v1)[0]);
-    //         }
+    //         // for (let i = 1; i <= 7; i++) {
+    //         //     v2 = ckksSeal.multiply(v2, v1);
+    //         //     console.log(ckksSeal.decrypt(v2)[0], (-0.000000357551295) ** i);
+    //         // }
     //     }
     //     temp();
     // }, []);

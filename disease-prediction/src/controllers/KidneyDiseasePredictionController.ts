@@ -1,6 +1,7 @@
 import { CKKSSealBuilder } from "@/core/modules/homomorphic-encryption/ckks";
 import { NodeSealProvider } from "@/core/modules/homomorphic-encryption/node-seal";
 import LinearRegressionService from "@/services/kidneyDiseasePrediction/LinearRegressionService";
+import LogisticRegressionService from "@/services/kidneyDiseasePrediction/LogisticRegressionService";
 import { Db } from "mongodb";
 import { NextApiRequest, NextApiResponse } from "next";
 import { Session } from "next-auth";
@@ -25,12 +26,14 @@ export default class KidneyDiseasePredictionController {
                 return;
             }
 
+            console.log(chunkSizePerPatientData, predictModel)
+
             const serializedPublickey = await db.collection("publickey")
                 .find({ id: session.user.id })
                 .toArray()
                 .then((chunks) => {
                     chunks.sort((a, b) => a.index - b.index);
-                    return chunks.map(chunk => chunk.chunk).join('');
+                    return this.mergeUint8Arrays(chunks.map(chunk => this.base64ToUint8Array(chunk.chunk)));
                 });
             console.log('serializedPublickey', serializedPublickey.length)
 
@@ -39,16 +42,17 @@ export default class KidneyDiseasePredictionController {
                 .toArray()
                 .then((chunks) => {
                     chunks.sort((a, b) => a.index - b.index);
-                    return chunks.map(chunk => chunk.chunk).join('');
+                    return this.mergeUint8Arrays(chunks.map(chunk => this.base64ToUint8Array(chunk.chunk)));
                 });
             console.log('serializedRelinKeys', serializedRelinKeys.length)
+
 
             const serializedGaloisKey = await db.collection("galoiskey")
                 .find({ id: session.user.id })
                 .toArray()
                 .then((chunks) => {
                     chunks.sort((a, b) => a.index - b.index);
-                    return chunks.map(chunk => chunk.chunk).join('');
+                    return this.mergeUint8Arrays(chunks.map(chunk => this.base64ToUint8Array(chunk.chunk)));
                 });
             console.log('serializedGaloisKey', serializedGaloisKey.length)
 
@@ -86,7 +90,7 @@ export default class KidneyDiseasePredictionController {
                         .deserializeGaloisKey(serializedGaloisKey)
                         .build();
 
-                    const prediction = LinearRegressionService.predictKidneyDisease(
+                    const prediction = LogisticRegressionService.predictKidneyDisease(
                         ckksSeal,
                         ckksSeal.deserializeCipherText(serializedPatientInfo),
                         parseInt(chunkSizePerPatientData)
@@ -109,5 +113,29 @@ export default class KidneyDiseasePredictionController {
             console.error(error);
             response.status(500).end(`${error}`);
         }
+    }
+
+
+    private static base64ToUint8Array(base64: string): Uint8Array {
+        const binaryString = atob(base64);
+        const length = binaryString.length;
+        const bytes = new Uint8Array(length);
+        for (let i = 0; i < length; i++) {
+            bytes[i] = binaryString.charCodeAt(i);
+        }
+        return bytes;
+    }
+
+
+    private static mergeUint8Arrays(arrays: Uint8Array[]): Uint8Array {
+        const totalLength = arrays.reduce((acc, arr) => acc + arr.length, 0);
+        const mergedArray = new Uint8Array(totalLength);
+
+        let offset = 0;
+        for (const arr of arrays) {
+            mergedArray.set(arr, offset);
+            offset += arr.length;
+        }
+        return mergedArray;
     }
 }

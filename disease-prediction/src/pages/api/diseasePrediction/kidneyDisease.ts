@@ -7,6 +7,7 @@ import KidneyDiseasePredictionController from '@/controllers/KidneyDiseasePredic
 
 export const config = {
     api: {
+        responseLimit: false,
         bodyParser: {
             sizeLimit: '10mb'
         }

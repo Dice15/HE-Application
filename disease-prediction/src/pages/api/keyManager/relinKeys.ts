@@ -23,33 +23,19 @@ export default async function handler(request: NextApiRequest, response: NextApi
     }
 
     switch (request.method) {
-        case "GET": {
-            try {
-                const result = await db.collection("relinkeys").findOne({
-                    id: session.user.id,
-                });
-                response.status(200).json({ message: "SUCCESS", data: { serializedRelinKeys: result ? result.relinkeys as string : null } });
-            }
-            catch (error) {
-                response.status(502).json({ message: "Database error", error: error });
-            }
-            break;
-        }
         case "POST": {
-            const { chunk, index, totalChunks } = request.body;
+            const { chunk, index } = request.body;
 
             try {
                 const result = await db.collection("relinkeys").insertOne({
                     id: session.user.id,
-                    name: session.user.name,
-                    email: session.user.email,
                     chunk: chunk,
                     index: index,
-                    totalChunks: totalChunks
                 });
                 response.status(200).json({ message: "SUCCESS", data: { id: result.insertedId.toString() } });
             }
             catch (error) {
+                console.error(error);
                 response.status(502).json({ message: "Database error", error: error });
             }
             break;
@@ -62,12 +48,13 @@ export default async function handler(request: NextApiRequest, response: NextApi
                 response.status(200).json({ message: "SUCCESS", data: { deletedCount: result.deletedCount } });
             }
             catch (error) {
+                console.error(error);
                 response.status(502).json({ message: "Database error", error: error });
             }
             break;
         }
         default: {
-            response.setHeader("Allow", ["GET", "POST", "DELETE"]);
+            response.setHeader("Allow", ["POST", "DELETE"]);
             response.status(405).end(`Method ${request.method} Not Allowed`);
         }
     }

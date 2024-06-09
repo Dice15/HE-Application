@@ -17,9 +17,9 @@ export class CKKSSealBuilder {
     private _polyModulusDegree: number;
     private _bitSegmentCount: number;
     private _scale: number;
-    private _serializedPublicKey: string | null;
-    private _serializedGaloisKey: string | null;
-    private _serializedRelinKeys: string | null;
+    private _serializedPublicKey: Uint8Array | null;
+    private _serializedGaloisKey: Uint8Array | null;
+    private _serializedRelinKeys: Uint8Array | null;
 
     constructor(seal: SEALLibrary, polyModulusDegree: number, bitSegmentCount: number, scale: number) {
         this._seal = seal;
@@ -31,17 +31,17 @@ export class CKKSSealBuilder {
         this._serializedRelinKeys = null;
     }
 
-    deserializePublicKey(serializedPublicKey: string): CKKSSealBuilder {
+    deserializePublicKey(serializedPublicKey: Uint8Array): CKKSSealBuilder {
         this._serializedPublicKey = serializedPublicKey;
         return this;
     }
 
-    deserializeGaloisKey(serializedGaloisKey: string): CKKSSealBuilder {
+    deserializeGaloisKey(serializedGaloisKey: Uint8Array): CKKSSealBuilder {
         this._serializedGaloisKey = serializedGaloisKey;
         return this;
     }
 
-    deserializeRelinKeys(serializedRelinKeys: string): CKKSSealBuilder {
+    deserializeRelinKeys(serializedRelinKeys: Uint8Array): CKKSSealBuilder {
         this._serializedRelinKeys = serializedRelinKeys;
         return this;
     }
@@ -59,10 +59,10 @@ export class CKKSSealBuilder {
         const bitSize = Math.floor(this._seal.CoeffModulus.MaxBitCount(this._polyModulusDegree, securityLevel) / this._bitSegmentCount);
         const coeffModulus = this._seal.CoeffModulus.Create(this._polyModulusDegree, Int32Array.from(Array.from({ length: this._bitSegmentCount }, () => bitSize)));
 
-        console.log(this._polyModulusDegree);
-        console.log(securityLevel);
-        console.log(this._seal.CoeffModulus.MaxBitCount(this._polyModulusDegree, securityLevel));
-        console.log(Int32Array.from(Array.from({ length: this._bitSegmentCount }, () => bitSize)));
+        // console.log(this._polyModulusDegree);
+        // console.log(securityLevel);
+        // console.log(this._seal.CoeffModulus.MaxBitCount(this._polyModulusDegree, securityLevel));
+        // console.log(Int32Array.from(Array.from({ length: this._bitSegmentCount }, () => bitSize)));
 
         const contextParms = this._seal.EncryptionParameters(schemeType);
         contextParms.setPolyModulusDegree(this._polyModulusDegree);
@@ -76,11 +76,11 @@ export class CKKSSealBuilder {
             const publicKey = keyGenerator.createPublicKey();
             const secretKey = keyGenerator.secretKey();
             const relinKeys = keyGenerator.createRelinKeys();
-            const galoisKey = keyGenerator.createGaloisKeys(Int32Array.from([1, 2, 4, 8, 16]));  // Int32Array.from([1, 2, 4, 8, 16])파라미터 주고 로테이션
+            const galoisKey = keyGenerator.createGaloisKeys(Int32Array.from([1]));  // Int32Array.from([1, 2, 4, 8, 16])파라미터 주고 로테이션
 
-            this._serializedPublicKey && publicKey.load(context, this._serializedPublicKey);
-            this._serializedRelinKeys && relinKeys.load(context, this._serializedRelinKeys);
-            this._serializedGaloisKey && galoisKey.load(context, this._serializedGaloisKey);
+            this._serializedPublicKey && publicKey.loadArray(context, this._serializedPublicKey);
+            this._serializedRelinKeys && relinKeys.loadArray(context, this._serializedRelinKeys);
+            this._serializedGaloisKey && galoisKey.loadArray(context, this._serializedGaloisKey);
 
             const encryptor = this._seal.Encryptor(context, publicKey);
             const decryptor = this._seal.Decryptor(context, secretKey);
@@ -138,16 +138,16 @@ export class CKKSSeal {
         this._scale = scale;
     }
 
-    public serializePublicKey(): string {
-        return this._publicKey.save();
+    public serializePublicKey(): Uint8Array {
+        return this._publicKey.saveArray();
     }
 
-    public serializeGaloisKey(): string {
-        return this._galoisKey.save();
+    public serializeGaloisKey(): Uint8Array {
+        return this._galoisKey.saveArray();
     }
 
-    public serializeRelinKeys(): string {
-        return this._relinKeys.save();
+    public serializeRelinKeys(): Uint8Array {
+        return this._relinKeys.saveArray();
     }
 
     public serializeCipherText(cipherText: CipherText): string {
@@ -239,7 +239,12 @@ export class CKKSSeal {
             const rotationCount = Math.ceil(Math.log2(steps));
 
             for (let cnt = 0; cnt < rotationCount; cnt++) {
-                this._evaluator.add(result, this.rotate(result, Math.pow(2, cnt)), result);
+                let rotated = result.clone();
+                for (let i = Math.pow(2, cnt); i > 0; i--) {
+                    rotated = this.rotate(rotated, 1);
+                }
+                this._evaluator.add(result, rotated, result);
+                //this._evaluator.add(result, this.rotate(result, Math.pow(2, cnt)), result);
             }
             return result;
         }
