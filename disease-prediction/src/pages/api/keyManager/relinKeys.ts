@@ -25,6 +25,7 @@ export default async function handler(request: NextApiRequest, response: NextApi
     switch (request.method) {
         case "POST": {
             const { chunk, index } = request.body;
+            console.log('relinkeys', index);
 
             try {
                 const result = await db.collection("relinkeys").insertOne({

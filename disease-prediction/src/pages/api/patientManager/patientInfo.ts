@@ -25,10 +25,9 @@ export default async function handler(request: NextApiRequest, response: NextApi
     switch (request.method) {
         case "POST": {
             const { chunk, index } = request.body;
-            console.log('publickey', index);
 
             try {
-                const result = await db.collection("publickey").insertOne({
+                const result = await db.collection("patientInfo").insertOne({
                     id: session.user.id,
                     chunk: chunk,
                     index: index,
@@ -43,7 +42,7 @@ export default async function handler(request: NextApiRequest, response: NextApi
         }
         case "DELETE": {
             try {
-                const result = await db.collection("publickey").deleteMany({
+                const result = await db.collection("patientInfo").deleteMany({
                     id: session.user.id,
                 });
                 response.status(200).json({ message: "SUCCESS", data: { deletedCount: result.deletedCount } });

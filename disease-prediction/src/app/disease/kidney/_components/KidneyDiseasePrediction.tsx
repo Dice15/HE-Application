@@ -81,9 +81,6 @@ export default function KidneyDiseasePrediction() {
     }, []);
 
 
-
-
-
     const keyRemover = () => {
         return [
             axios.delete('/api/keyManager/publicKey'),
@@ -114,10 +111,18 @@ export default function KidneyDiseasePrediction() {
 
     const handleCreateCkksSeal = useCallback(async (predictModel: "linear" | "logistic"): Promise<CKKSSeal | null> => {
         return await NodeSealProvider.getSeal()
-            .then((sealLibrary) => {
+            .then((nodeSeal) => {
                 return predictModel === "linear"
-                    ? new CKKSSealBuilder(sealLibrary, Math.pow(2, 12), 2, Math.pow(2, 20)).build()
-                    : new CKKSSealBuilder(sealLibrary, Math.pow(2, 15), 15, Math.pow(2, 40)).build();
+                    ? new CKKSSealBuilder(nodeSeal, nodeSeal.SecurityLevel.tc128)
+                        .setCoeffModulus(Math.pow(2, 13), [40, 40, 40, 60])
+                        .setScale(Math.pow(2, 40))
+                        .setRotationSteps([1, 2, 4, 8, 16])
+                        .build()
+                    : new CKKSSealBuilder(nodeSeal, nodeSeal.SecurityLevel.tc128)
+                        .setCoeffModulus(Math.pow(2, 14), [40, 40, 40, 40, 40, 40, 40, 40, 60])
+                        .setScale(Math.pow(2, 40))
+                        .setRotationSteps([1, 2, 4, 8, 16])
+                        .build();
             })
             .catch((reason) => {
                 console.error("An error occurred:", reason);
@@ -145,6 +150,11 @@ export default function KidneyDiseasePrediction() {
 
             const { zippedData, chunkSize } = ckksSeal.arrayZipper(samples.map((sample) => features.map(feature => (sample[feature] || 0))));
             const slotCount = ckksSeal.getSlotCount();
+
+            zippedData.forEach((data, index) => {
+                console.log(ckksSeal.serializeCipherText(ckksSeal.encrypt(data)).length);
+            })
+
 
             let progressCounter = 0;
             keySender(ckksSeal).then(() => {
@@ -180,105 +190,60 @@ export default function KidneyDiseasePrediction() {
 
 
     // useEffect(() => {
-    //     if (ckksSeal && patients.length > 0) {
-    //         showLoading('Predicting...', 'Predicting patient information.');
-    //         setProgress(0);
-    //         setPredictions(Array.from({ length: patients.length }, () => false));
-
-    //         setTimeout(() => {
-    //             const features = KidneyDisease.getFeatures();
-    //             const samples = KidneyDisease.transformToMLData(JSON.parse(JSON.stringify(patients, null, 2)) as any[]);
-    //             const { zippedData, chunkSize } = ckksSeal.arrayZipper(samples.map((sample) => features.map(feature => (sample[feature] || 0))));
-    //             const slotCount = ckksSeal.getSlotCount();
-
-    //             let progressCounter = 0;
-    //             Promise.allSettled(keySender(ckksSeal)).then(() => {
-    //                 Promise.allSettled(
-    //                     predicting(ckksSeal, zippedData, chunkSize, (prediction: number[], index: number) => {
-    //                         const sliceCount = Math.floor(slotCount / chunkSize);
-    //                         const startIndex = sliceCount * index;
-
-    //                         for (let i = 0; i < sliceCount; i++) {
-    //                             const result = KidneyDisease.isDisease(prediction[i * chunkSize] as number);
-
-    //                             setPredictions(prevResults => {
-    //                                 const newResults = [...prevResults];
-    //                                 newResults[startIndex + i] = result;
-    //                                 return newResults;
-    //                             });
-    //                         }
-
-    //                         setProgress((++progressCounter / zippedData.length) * 100);
-    //                     })
-    //                 ).then(() => {
-    //                     Promise.allSettled(keyRemover()).then(() => {
-    //                         setTimeout(() => { hideLoading() }, 2000);
-    //                     })
-    //                 });
-    //             })
-    //         }, 2000);
-    //     }
-    // }, [ckksSeal, patients, showLoading, hideLoading, predicting])
-
-
-
-
-    // useEffect(() => {
     //     const temp = async () => {
-    //         const ckksSeal = new CKKSSealBuilder(await NodeSealProvider.getSeal(), Math.pow(2, 15), 15, Math.pow(2, 40)).build();
+    //         const ckksSeal = await NodeSealProvider.getSeal().then((nodeSeal) => {
+    //             return new CKKSSealBuilder(nodeSeal, nodeSeal.SecurityLevel.tc128)
+    //                 .setCoeffModulus(Math.pow(2, 14), [40, 40, 40, 40, 40, 40, 40, 40, 60])
+    //                 .setScale(Math.pow(2, 40))
+    //                 .setRotationSteps([1, 2, 4, 8, 16])
+    //                 .build();
+    //         });
+
     //         console.log(ckksSeal.serializePublicKey().length);
     //         console.log(ckksSeal.serializeRelinKeys().length);
     //         console.log(ckksSeal.serializeGaloisKey().length);
 
-    //         // const encryptedIntercept = ckksSeal.encrypt([2]);
-    //         // const encryptedCoefficients = ckksSeal.encrypt([2]);
-    //         // const encryptedPatientsData = ckksSeal.encrypt([2]);
-    //         // const ckksScaleCorrection = ckksSeal.encrypt([1]);
-    //         // const encryptedPolyCoefficients = [0.499509755651757, 0.196809345741200, 0.000058588762850, -0.005439803888197, -0.000001517035421, 0.000074967999198, 0.000000009991278, -0.000000357551295
-    //         // ].map((polyCoefficient) => {
-    //         //     return ckksSeal.encrypt(Array.from(
-    //         //         { length: ckksSeal.getSlotCount() },
-    //         //         () => polyCoefficient)
-    //         //     );
-    //         // });
 
-    //         // const serializedPublicKey = ckksSeal.serializePublicKey();
-    //         // const serializedRelinKeys = ckksSeal.serializeRelinKeys();
-    //         // const serializedGaloisKey = ckksSeal.serializeGaloisKey();
+    //         const intercept = ckksSeal.encrypt([0.0025]);
+    //         const coefficients = ckksSeal.encrypt([0.03]);
+    //         const patientsData = ckksSeal.encrypt([0.05]);
+    //         const polyCoefficients = [0, 1, 1, 1, 1, 1, 1, 1, 1, 1]
+    //             .map((polyCoefficient) => {
+    //                 return ckksSeal.encrypt(Array.from({ length: ckksSeal.getSlotCount() }, () => polyCoefficient));
+    //             });
 
-    //         // console.log(serializedPublicKey.length)
-    //         // console.log(serializedRelinKeys.length)
-    //         // console.log(serializedGaloisKey.length)
+    //         const logit = ckksSeal.add(
+    //             ckksSeal.sumElements(ckksSeal.multiply(coefficients, patientsData), 25),
+    //             intercept
+    //         );
+    //         console.log(ckksSeal.decrypt(logit)[0]);
 
-    //         // const logit = ckksSeal.add(
-    //         //     ckksSeal.sumElements(
-    //         //         ckksSeal.multiply(encryptedCoefficients, encryptedPatientsData),
-    //         //         31
-    //         //     ),
-    //         //     ckksSeal.multiply(encryptedIntercept, ckksScaleCorrection)
-    //         // );
+    //         let predict = polyCoefficients[1];
+    //         let x = Array.from({ length: 9 }) as CipherText[];
 
-    //         // let predict = encryptedPolyCoefficients[0];
-    //         // let x = logit.clone();
-    //         // let s = ckksSeal.multiply(ckksScaleCorrection, ckksScaleCorrection);
+    //         x[1] = logit;
+    //         x[2] = ckksSeal.multiply(x[1], x[1]);
+    //         x[4] = ckksSeal.multiply(x[2], x[2]);
+    //         x[6] = ckksSeal.multiply(x[4], x[2]);
+    //         x[8] = ckksSeal.multiply(x[4], x[4]);
 
-    //         // for (let i = 1; i <= 7; i++) {
-    //         //     predict = ckksSeal.add(
-    //         //         ckksSeal.multiply(predict, s),
-    //         //         ckksSeal.multiply(encryptedPolyCoefficients[i], x)
-    //         //     );
-    //         //     x = ckksSeal.multiply(x, logit);
-    //         //     console.log(predict.scale)
-    //         // }
+    //         for (let i = 2; i <= 8; i += 2) {
+    //             predict = ckksSeal.add(
+    //                 predict,
+    //                 ckksSeal.multiply(polyCoefficients[i], x[i])
+    //             );
+    //         }
 
-    //         // (-0.000000357551295)**7
-    //         // let v1 = ckksSeal.encrypt([-0.000000357551295]);
-    //         // let v2 = ckksSeal.encrypt([1]);
+    //         predict = ckksSeal.add(
+    //             polyCoefficients[0],
+    //             ckksSeal.multiply(predict, x[1])
+    //         );
 
-    //         // for (let i = 1; i <= 7; i++) {
-    //         //     v2 = ckksSeal.multiply(v2, v1);
-    //         //     console.log(ckksSeal.decrypt(v2)[0], (-0.000000357551295) ** i);
-    //         // }
+    //         let temp = 0;
+    //         for (let i = 1; i <= 9; i += 2) {
+    //             temp += Math.pow(0.004, i);
+    //         }
+    //         console.log(ckksSeal.decrypt(predict)[0], temp);
     //     }
     //     temp();
     // }, []);

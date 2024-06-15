@@ -54,7 +54,7 @@ export default class KidneyDiseasePredictionController {
                     chunks.sort((a, b) => a.index - b.index);
                     return this.mergeUint8Arrays(chunks.map(chunk => this.base64ToUint8Array(chunk.chunk)));
                 });
-            console.log('serializedGaloisKey', serializedGaloisKey.length)
+            console.log('serializedGaloisKeys', serializedGaloisKey.length)
 
             if (serializedPublickey.length === 0 || serializedRelinKeys.length === 0 || serializedGaloisKey.length === 0) {
                 response.status(502).json({ msg: "Missing Key." });
@@ -63,11 +63,16 @@ export default class KidneyDiseasePredictionController {
 
             switch (predictModel) {
                 case "linear": {
-                    const ckksSeal = new CKKSSealBuilder(await NodeSealProvider.getSeal(), Math.pow(2, 12), 2, Math.pow(2, 20))
-                        .deserializePublicKey(serializedPublickey)
-                        .deserializeRelinKeys(serializedRelinKeys)
-                        .deserializeGaloisKey(serializedGaloisKey)
-                        .build();
+                    const ckksSeal = await NodeSealProvider.getSeal().then((nodeSeal) => {
+                        return new CKKSSealBuilder(nodeSeal, nodeSeal.SecurityLevel.tc128)
+                            .setCoeffModulus(Math.pow(2, 13), [40, 40, 40, 60])
+                            .setScale(Math.pow(2, 40))
+                            .setRotationSteps([1, 2, 4, 8, 16])
+                            .deserializePublicKey(serializedPublickey)
+                            .deserializeRelinKeys(serializedRelinKeys)
+                            .deserializeGaloisKey(serializedGaloisKey)
+                            .build();
+                    });
 
                     const prediction = LinearRegressionService.predictKidneyDisease(
                         ckksSeal,
@@ -84,11 +89,16 @@ export default class KidneyDiseasePredictionController {
                     break;
                 }
                 case "logistic": {
-                    const ckksSeal = new CKKSSealBuilder(await NodeSealProvider.getSeal(), Math.pow(2, 15), 15, Math.pow(2, 40))
-                        .deserializePublicKey(serializedPublickey)
-                        .deserializeRelinKeys(serializedRelinKeys)
-                        .deserializeGaloisKey(serializedGaloisKey)
-                        .build();
+                    const ckksSeal = await NodeSealProvider.getSeal().then((nodeSeal) => {
+                        return new CKKSSealBuilder(nodeSeal, nodeSeal.SecurityLevel.tc128)
+                            .setCoeffModulus(Math.pow(2, 14), [40, 40, 40, 40, 40, 40, 40, 40, 60])
+                            .setScale(Math.pow(2, 40))
+                            .setRotationSteps([1, 2, 4, 8, 16])
+                            .deserializePublicKey(serializedPublickey)
+                            .deserializeRelinKeys(serializedRelinKeys)
+                            .deserializeGaloisKey(serializedGaloisKey)
+                            .build();
+                    });
 
                     const prediction = LogisticRegressionService.predictKidneyDisease(
                         ckksSeal,
