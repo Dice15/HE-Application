@@ -2,7 +2,7 @@ import { CKKSSeal } from "@/core/modules/homomorphic-encryption/ckks";
 import { CipherText } from "node-seal/implementation/cipher-text";
 
 
-export default class LogisticRegressionService {
+export default class AccurateKidneyDiseasePredictionService {
     private constructor() { }
 
 

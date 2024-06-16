@@ -39,7 +39,7 @@ export default function KidneyDiseasePrediction() {
     }, []);
 
 
-    const keySender = useCallback(async (ckksSeal: CKKSSeal) => {
+    const keySaver = useCallback(async (ckksSeal: CKKSSeal) => {
         const CHUNK_SIZE_MB = 1;
         const CHUNK_SIZE_BYTES = CHUNK_SIZE_MB * 1024 * 1024;
 
@@ -59,35 +59,36 @@ export default function KidneyDiseasePrediction() {
             return btoa(binaryString);
         }
 
-        const sendChunks = async (url: string, chunks: Uint8Array[]) => {
+        const saveChunks = async (chunks: Uint8Array[], keyType: "publicKey" | "relinKeys" | "galoisKeys") => {
             for (let i = 0; i < chunks.length; i++) {
                 const base64Chunk = uint8ArrayToBase64(chunks[i]);
-                await axios.post(url, {
+                await axios.post('/api/ckksKeyManager/ckksKeyManagement', {
                     chunk: base64Chunk,
                     index: i,
+                    keyType: keyType
                 });
             }
         }
 
         const publicKeyChunks = splitIntoChunks(ckksSeal.serializePublicKey(), CHUNK_SIZE_BYTES);
         const relinKeysChunks = splitIntoChunks(ckksSeal.serializeRelinKeys(), CHUNK_SIZE_BYTES);
-        const galoisKeyChunks = splitIntoChunks(ckksSeal.serializeGaloisKey(), CHUNK_SIZE_BYTES);
+        const galoisKeysChunks = splitIntoChunks(ckksSeal.serializeGaloisKey(), CHUNK_SIZE_BYTES);
 
         return await Promise.allSettled([
-            sendChunks('/api/keyManager/publicKey', publicKeyChunks),
-            sendChunks('/api/keyManager/relinKeys', relinKeysChunks),
-            sendChunks('/api/keyManager/galoisKey', galoisKeyChunks)
+            saveChunks(publicKeyChunks, "publicKey"),
+            saveChunks(relinKeysChunks, "relinKeys"),
+            saveChunks(galoisKeysChunks, "galoisKeys")
         ]);
     }, []);
 
 
-    const keyRemover = () => {
-        return [
-            axios.delete('/api/keyManager/publicKey'),
-            axios.delete('/api/keyManager/relinKeys'),
-            axios.delete('/api/keyManager/galoisKey'),
-        ];
-    }
+    const keyRemover = useCallback(async () => {
+        const deleteChunks = async () => {
+            await axios.delete('/api/ckksKeyManager/ckksKeyManagement');
+        }
+
+        return await deleteChunks();
+    }, []);
 
 
     const predicting = useCallback((ckksSeal: CKKSSeal, zippedData: any[][], chunkSize: number, predictModel: "linear" | "logistic", afterPredict: (prediction: number[], index: number) => void): Promise<void>[] => {
@@ -98,7 +99,7 @@ export default function KidneyDiseasePrediction() {
                 predictModel: predictModel
             };
 
-            return axios.post('/api/diseasePrediction/kidneyDisease', body)
+            return axios.post('/api/diseasePrediction/kidneyDiseasePrediction', body)
                 .then((response) => {
                     afterPredict(ckksSeal.decrypt(ckksSeal.deserializeCipherText(response.data.data.prediction as string)), index);
                 })
@@ -157,7 +158,7 @@ export default function KidneyDiseasePrediction() {
 
 
             let progressCounter = 0;
-            keySender(ckksSeal).then(() => {
+            keySaver(ckksSeal).then(() => {
                 Promise.allSettled(
                     predicting(ckksSeal, zippedData, chunkSize, predictModel, (prediction: number[], index: number) => {
                         const sliceCount = Math.floor(slotCount / chunkSize);
@@ -178,7 +179,7 @@ export default function KidneyDiseasePrediction() {
                         setProgress((++progressCounter / zippedData.length) * 100);
                     })
                 ).then(() => {
-                    Promise.allSettled(keyRemover()).then(() => {
+                    keyRemover().then(() => {
                         setTimeout(() => { hideLoading() }, 2000);
                     })
                 });
@@ -186,7 +187,7 @@ export default function KidneyDiseasePrediction() {
         }
 
         setTimeout(() => { hideLoading() }, 2000);
-    }, [handleCreateCkksSeal, hideLoading, keySender, patients, predictModel, predicting, showLoading]);
+    }, [handleCreateCkksSeal, hideLoading, keySaver, keyRemover, patients, predictModel, predicting, showLoading]);
 
 
     // useEffect(() => {

@@ -1,8 +1,7 @@
 import { NextApiRequest, NextApiResponse } from 'next';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '../auth/[...nextauth]';
-import MongoDbProvider from '@/core/modules/database/MongoDbProvider';
-import KidneyDiseasePredictionController from '@/controllers/KidneyDiseasePredictionController';
+import KidneyDiseasePredictionController from '@/controllers/diseasePrediction/KidneyDiseasePredictionController';
 
 
 export const config = {
@@ -12,23 +11,22 @@ export const config = {
             sizeLimit: '10mb'
         }
     }
+
 };
 
 
 export default async function handler(request: NextApiRequest, response: NextApiResponse) {
-    const db = await MongoDbProvider.connectDb(process.env.MONGODB_URI).then(() => MongoDbProvider.getDb());
     const session = await getServerSession(request, response, authOptions);
+
+    if (!session) {
+        response.status(401).end('Unauthorized');
+        return;
+    }
 
     switch (request.method) {
         case 'POST': {
-            if (!session) {
-                response.status(401).end('Unauthorized');
-                return;
-            }
-
             try {
-                await KidneyDiseasePredictionController.handlePredictKidneyDisease(request, response, session, db);
-                break;
+                await KidneyDiseasePredictionController.handlePredictKidneyDisease(request, response, session);
             } catch (error) {
                 console.error(error);
                 response.status(500).end(`${error}`);
