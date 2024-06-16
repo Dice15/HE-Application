@@ -193,18 +193,14 @@ export class CKKSSeal {
         return this._relinKeys.saveArray();
     }
 
-    public serializeCipherText(cipherText: CipherText): string {
-        return cipherText.save();
+    public serializeCipherText(cipherText: CipherText): Uint8Array {
+        return cipherText.saveArray();
     }
 
-    public deserializeCipherText(serializedCipherText: string): CipherText {
+    public deserializeCipherText(serializedCipherText: Uint8Array): CipherText {
         const cipherText = this._seal.CipherText();
-        cipherText.load(this._context, serializedCipherText);
+        cipherText.loadArray(this._context, serializedCipherText);
         return cipherText;
-    }
-
-    public getSlotCount(): number {
-        return this._encoder.slotCount;
     }
 
     public arrayZipper(arrays: any[][]): {
@@ -253,6 +249,10 @@ export class CKKSSeal {
 
     public createCipherText(): CipherText {
         return this._seal.CipherText();
+    }
+
+    public getSlotCount(): number {
+        return this._encoder.slotCount;
     }
 
     public encrypt(array: number[]): CipherText {
@@ -306,7 +306,6 @@ export class CKKSSeal {
                 this._evaluator.modReduceToNext(cipherText2, cipherText2);
             }
         }
-        console.log(cipherText1.coeffModulusSize, cipherText2.coeffModulusSize);
         return [cipherText1, cipherText2];
     }
 

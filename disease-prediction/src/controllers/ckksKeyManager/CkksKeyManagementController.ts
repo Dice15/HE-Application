@@ -14,7 +14,7 @@ export default class CkksKeyManagementController {
     private constructor() { }
 
 
-    public static async handleSaveCkksKey(request: NextApiRequest, response: NextApiResponse, session: Session) {
+    public static async handleSaveCkksKey(request: NextApiRequest, response: NextApiResponse, session: Session): Promise<void> {
         try {
             const { chunk, index, keyType } = request.body as ICkksKeyManagementControllerParams;
 
@@ -38,7 +38,7 @@ export default class CkksKeyManagementController {
     }
 
 
-    public static async handleDeleteCkksKey(request: NextApiRequest, response: NextApiResponse, session: Session) {
+    public static async handleDeleteCkksKey(request: NextApiRequest, response: NextApiResponse, session: Session): Promise<void> {
         try {
             await CkksKeyManagementService.deleteCkksKey(session.user.id, "publicKey");
             await CkksKeyManagementService.deleteCkksKey(session.user.id, "relinKeys");

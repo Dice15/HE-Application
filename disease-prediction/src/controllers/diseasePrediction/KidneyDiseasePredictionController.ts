@@ -18,7 +18,7 @@ export default class KidneyDiseasePredictionController {
     private constructor() { }
 
 
-    public static async handlePredictKidneyDisease(request: NextApiRequest, response: NextApiResponse, session: Session) {
+    public static async handlePredictKidneyDisease(request: NextApiRequest, response: NextApiResponse, session: Session): Promise<void> {
         try {
             const { serializedPatientInfo, chunkSizePerPatientData, predictModel } = request.body as IKidneyDiseasePredictionControllerParams;
 

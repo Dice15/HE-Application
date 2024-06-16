@@ -1,14 +1,21 @@
-import { CKKSSealBuilder } from "@/core/modules/homomorphic-encryption/ckks";
-import { NodeSealProvider } from "@/core/modules/homomorphic-encryption/node-seal";
-import Swal from "sweetalert2";
-
 export class KidneyDisease {
     private constructor() { }
 
 
-    public static transformToMLData(data: any[]): any[] {
-        // 수치형 데이터의 결측값을 평균값으로 대체
-        const numericMeans: Record<string, number> = {
+    public static preprocessPatientData(patientData: any[]): {
+        features: string[];
+        rows: any[][];
+    } {
+        /**
+         * List of features used in the dataset
+         */
+        const features = ['age', 'bp', 'sg', 'al', 'su', 'rbc', 'pc', 'pcc', 'ba', 'bgr', 'bu', 'sc', 'sod', 'pot', 'hemo', 'pcv', 'wc', 'rc', 'htn', 'dm', 'cad', 'appet', 'pe', 'ane'];
+
+
+        /**
+         * Replace missing numeric values with their mean
+         */
+        Object.entries({
             age: 51.483375959079275,
             bp: 76.46907216494844,
             sg: 1.0174079320113314,
@@ -23,15 +30,15 @@ export class KidneyDisease {
             rc: 4.241635687732342,
             wc: 8406.122448979591,
             pcv: 38.88449848024316,
-        };
-
-        Object.entries(numericMeans).forEach(([col, mean]) => {
-            data.forEach(row => { row[col] = row[col] ?? mean; });
+        } as Record<string, number>).forEach(([feature, mean]) => {
+            patientData.forEach(row => { row[feature] = row[feature] ?? mean; });
         });
 
 
-        // 범주형 데이터의 결측값을 적절한 값으로 대체
-        data.forEach(row => {
+        /**
+         * Replace missing categorical values with a default
+         */
+        patientData.forEach(row => {
             row['rbc'] = row['rbc'] ?? 'normal';
             row['pc'] = row['pc'] ?? 'normal';
             row['pcc'] = row['pcc'] ?? 'notpresent';
@@ -45,8 +52,10 @@ export class KidneyDisease {
         });
 
 
-        // 범주형 데이터를 레이블 인코딩
-        const categorical_label_mappings: Record<string, Record<string, number>> = {
+        /**
+         * Encode categorical values into numeric labels
+         */
+        Object.entries({
             rbc: { 'abnormal': 0, 'normal': 1 },
             pc: { 'abnormal': 0, 'normal': 1 },
             pcc: { 'notpresent': 0, 'present': 1 },
@@ -58,15 +67,15 @@ export class KidneyDisease {
             pe: { 'no': 0, 'yes': 1 },
             ane: { 'no': 0, 'yes': 1 },
             classification: { 'ckd': 0, 'ckd\t': 1, 'notckd': 2 }
-        }
-
-        Object.entries(categorical_label_mappings).forEach(([col, label_mappings]) => {
-            data.forEach(row => { row[col] = label_mappings[row[col]] });
+        } as Record<string, Record<string, number>>).forEach(([feature, label_mappings]) => {
+            patientData.forEach(row => { row[feature] = label_mappings[row[feature]] });
         });
 
 
-        // 수치형 데이터를 MinMax 스케일링
-        const feature_ranges: Record<string, Record<string, number>> = {
+        /**
+         * Apply MinMax scaling to numeric data
+         */
+        Object.entries({
             id: { 'min': 0, 'max': 399 },
             age: { 'min': 2.0, 'max': 90.0 },
             bp: { 'min': 50.0, 'max': 180.0 },
@@ -93,28 +102,20 @@ export class KidneyDisease {
             pe: { 'min': 0, 'max': 1 },
             ane: { 'min': 0, 'max': 1 },
             classification: { 'min': 0, 'max': 2 }
-        }
-
-        Object.entries(feature_ranges).forEach(([col, { min, max }]) => {
-            data.forEach(row => {
-                const scaled = (row[col] - min) / (max - min);
-                row[col] = Math.min(1, Math.max(0, scaled));
+        } as Record<string, Record<string, number>>).forEach(([feature, { min, max }]) => {
+            patientData.forEach(row => {
+                const scaled = (row[feature] - min) / (max - min);
+                row[feature] = Math.min(1, Math.max(0, scaled));
             });
         });
 
-        return data;
+        return {
+            features: features,
+            rows: patientData.map((data) => features.map(feature => (data[feature] || 0)))
+        };
     };
 
-
-    public static getFeatures(): string[] {
-        return ['age', 'bp', 'sg', 'al', 'su', 'rbc', 'pc', 'pcc', 'ba', 'bgr', 'bu', 'sc', 'sod', 'pot', 'hemo', 'pcv', 'wc', 'rc', 'htn', 'dm', 'cad', 'appet', 'pe', 'ane'];
-    }
-
-    public static isDisease(prediction: number): boolean {
+    public static isKidneyDisease(prediction: number): boolean {
         return prediction < 0.5;
-    }
-
-    public static prediction(): boolean {
-        return true;
     }
 }
