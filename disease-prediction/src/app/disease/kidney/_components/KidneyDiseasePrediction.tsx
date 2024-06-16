@@ -114,13 +114,13 @@ export default function KidneyDiseasePrediction() {
             .then((nodeSeal) => {
                 return predictModel === "linear"
                     ? new CKKSSealBuilder(nodeSeal, nodeSeal.SecurityLevel.tc128)
-                        .setCoeffModulus(Math.pow(2, 13), [40, 40, 40, 60])
-                        .setScale(Math.pow(2, 40))
+                        .setCoeffModulus(Math.pow(2, 14), [60, 60, 60, 60])
+                        .setScale(Math.pow(2, 60))
                         .setRotationSteps([1, 2, 4, 8, 16])
                         .build()
                     : new CKKSSealBuilder(nodeSeal, nodeSeal.SecurityLevel.tc128)
-                        .setCoeffModulus(Math.pow(2, 14), [40, 40, 40, 40, 40, 40, 40, 40, 60])
-                        .setScale(Math.pow(2, 40))
+                        .setCoeffModulus(Math.pow(2, 15), [60, 60, 60, 60, 60, 60, 60, 60, 60])
+                        .setScale(Math.pow(2, 60))
                         .setRotationSteps([1, 2, 4, 8, 16])
                         .build();
             })
@@ -193,8 +193,8 @@ export default function KidneyDiseasePrediction() {
     //     const temp = async () => {
     //         const ckksSeal = await NodeSealProvider.getSeal().then((nodeSeal) => {
     //             return new CKKSSealBuilder(nodeSeal, nodeSeal.SecurityLevel.tc128)
-    //                 .setCoeffModulus(Math.pow(2, 14), [40, 40, 40, 40, 40, 40, 40, 40, 60])
-    //                 .setScale(Math.pow(2, 40))
+    //                 .setCoeffModulus(Math.pow(2, 14), [60, 60, 60, 60])
+    //                 .setScale(Math.pow(2, 60))
     //                 .setRotationSteps([1, 2, 4, 8, 16])
     //                 .build();
     //         });
@@ -203,6 +203,33 @@ export default function KidneyDiseasePrediction() {
     //         console.log(ckksSeal.serializeRelinKeys().length);
     //         console.log(ckksSeal.serializeGaloisKey().length);
 
+    //         const intercept = ckksSeal.encrypt([0.0025]);
+    //         const coefficients = ckksSeal.encrypt([0.03]);
+    //         const patientsData = ckksSeal.encrypt([0.05]);
+
+    //         const logit = ckksSeal.add(
+    //             ckksSeal.sumElements(ckksSeal.multiply(coefficients, patientsData), 24),
+    //             intercept
+    //         );
+    //         console.log(ckksSeal.decrypt(logit)[0]);
+    //     }
+    //     temp();
+    // }, []);
+
+
+    // useEffect(() => {
+    //     const temp = async () => {
+    //         const ckksSeal = await NodeSealProvider.getSeal().then((nodeSeal) => {
+    //             return new CKKSSealBuilder(nodeSeal, nodeSeal.SecurityLevel.tc128)
+    //                 .setCoeffModulus(Math.pow(2, 15), [60, 60, 60, 60, 60, 60, 60, 60, 60])
+    //                 .setScale(Math.pow(2, 60))
+    //                 .setRotationSteps([1, 2, 4, 8, 16])
+    //                 .build();
+    //         });
+
+    //         console.log(ckksSeal.serializePublicKey().length);
+    //         console.log(ckksSeal.serializeRelinKeys().length);
+    //         console.log(ckksSeal.serializeGaloisKey().length);
 
     //         const intercept = ckksSeal.encrypt([0.0025]);
     //         const coefficients = ckksSeal.encrypt([0.03]);
@@ -218,36 +245,32 @@ export default function KidneyDiseasePrediction() {
     //         );
     //         console.log(ckksSeal.decrypt(logit)[0]);
 
-    //         let predict = polyCoefficients[1];
-    //         let x = Array.from({ length: 9 }) as CipherText[];
 
+    //         let x = Array.from({ length: 9 }) as CipherText[];
     //         x[1] = logit;
     //         x[2] = ckksSeal.multiply(x[1], x[1]);
     //         x[4] = ckksSeal.multiply(x[2], x[2]);
     //         x[6] = ckksSeal.multiply(x[4], x[2]);
     //         x[8] = ckksSeal.multiply(x[4], x[4]);
 
+    //         let even = polyCoefficients[0];
+    //         let odd = polyCoefficients[1];
+
     //         for (let i = 2; i <= 8; i += 2) {
-    //             predict = ckksSeal.add(
-    //                 predict,
-    //                 ckksSeal.multiply(polyCoefficients[i], x[i])
-    //             );
+    //             even = ckksSeal.add(even, ckksSeal.multiply(polyCoefficients[i], x[i]));
+    //             odd = ckksSeal.add(odd, ckksSeal.multiply(polyCoefficients[i + 1], x[i]));
     //         }
 
-    //         predict = ckksSeal.add(
-    //             polyCoefficients[0],
-    //             ckksSeal.multiply(predict, x[1])
-    //         );
+    //         const predict = ckksSeal.add(even, ckksSeal.multiply(odd, x[1]));
 
     //         let temp = 0;
-    //         for (let i = 1; i <= 9; i += 2) {
+    //         for (let i = 1; i <= 9; i++) {
     //             temp += Math.pow(0.004, i);
     //         }
     //         console.log(ckksSeal.decrypt(predict)[0], temp);
     //     }
     //     temp();
     // }, []);
-
 
     return (
         <Wrapper>

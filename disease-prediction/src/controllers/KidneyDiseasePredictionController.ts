@@ -65,8 +65,8 @@ export default class KidneyDiseasePredictionController {
                 case "linear": {
                     const ckksSeal = await NodeSealProvider.getSeal().then((nodeSeal) => {
                         return new CKKSSealBuilder(nodeSeal, nodeSeal.SecurityLevel.tc128)
-                            .setCoeffModulus(Math.pow(2, 13), [40, 40, 40, 60])
-                            .setScale(Math.pow(2, 40))
+                            .setCoeffModulus(Math.pow(2, 14), [60, 60, 60, 60])
+                            .setScale(Math.pow(2, 60))
                             .setRotationSteps([1, 2, 4, 8, 16])
                             .deserializePublicKey(serializedPublickey)
                             .deserializeRelinKeys(serializedRelinKeys)
@@ -91,8 +91,8 @@ export default class KidneyDiseasePredictionController {
                 case "logistic": {
                     const ckksSeal = await NodeSealProvider.getSeal().then((nodeSeal) => {
                         return new CKKSSealBuilder(nodeSeal, nodeSeal.SecurityLevel.tc128)
-                            .setCoeffModulus(Math.pow(2, 14), [40, 40, 40, 40, 40, 40, 40, 40, 60])
-                            .setScale(Math.pow(2, 40))
+                            .setCoeffModulus(Math.pow(2, 15), [60, 60, 60, 60, 60, 60, 60, 60, 60])
+                            .setScale(Math.pow(2, 60))
                             .setRotationSteps([1, 2, 4, 8, 16])
                             .deserializePublicKey(serializedPublickey)
                             .deserializeRelinKeys(serializedRelinKeys)

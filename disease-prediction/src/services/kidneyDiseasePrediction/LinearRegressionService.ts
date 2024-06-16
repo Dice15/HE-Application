@@ -11,7 +11,13 @@ export default class LinearRegressionService {
         const intercept = this.getModelIntercept();
         const coefficients = this.getModelCoefficients();
 
-        // encrypt
+
+        /**
+         * Encrypt linear regression model parameters:
+         * 
+         * intercept (intercept of the linear regression model)
+         * coefficients (coefficients of the linear regression model)
+         */
         const encryptedIntercept = ckksSeal.encrypt(Array.from(
             { length: slotCount },
             () => intercept)
@@ -21,7 +27,11 @@ export default class LinearRegressionService {
             () => coefficients.concat(new Array(chunkSizePerPatientData - coefficients.length).fill(0))).flat()
         );
 
-        // predict
+
+        /**
+         * Compute the linear regression formula:
+         * predict = (coefficient * patientsData).sum + intercept
+         */
         return ckksSeal.add(
             ckksSeal.sumElements(
                 ckksSeal.multiply(encryptedCoefficients, encryptedPatientsData),
