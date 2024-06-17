@@ -41,17 +41,15 @@ export default function KidneyDiseasePrediction() {
     const handleCreateCkksSeal = useCallback(async (predictModel: "linear" | "logistic"): Promise<CKKSSeal> => {
         return NodeSealProvider.getSeal()
             .then((nodeSeal) => {
-                return predictModel === "linear"
-                    ? new CKKSSealBuilder(nodeSeal, nodeSeal.SecurityLevel.tc128)
-                        .setCoeffModulus(Math.pow(2, 14), [60, 60, 60, 60])
-                        .setScale(Math.pow(2, 60))
-                        .setRotationSteps([1, 2, 4, 8, 16])
-                        .build()
-                    : new CKKSSealBuilder(nodeSeal, nodeSeal.SecurityLevel.tc128)
-                        .setCoeffModulus(Math.pow(2, 15), [60, 60, 60, 60, 60, 60, 60, 60, 60])
-                        .setScale(Math.pow(2, 60))
-                        .setRotationSteps([1, 2, 4, 8, 16])
-                        .build();
+                return (predictModel === "linear"
+                    ? new CKKSSealBuilder(nodeSeal, nodeSeal.SecurityLevel.tc128, Math.pow(2, 14), [60, 60, 60, 60], Math.pow(2, 60))
+                    : new CKKSSealBuilder(nodeSeal, nodeSeal.SecurityLevel.tc128, Math.pow(2, 15), [60, 60, 60, 60, 60, 60, 60, 60, 60], Math.pow(2, 60))
+                )
+                    .createSecretKey()
+                    .createPublicKey()
+                    .createRelinKeys()
+                    .createGaloisKeys([1, 2, 4, 8, 16])
+                    .build()
             })
             .catch((error) => {
                 console.error("An error occurred:", error);

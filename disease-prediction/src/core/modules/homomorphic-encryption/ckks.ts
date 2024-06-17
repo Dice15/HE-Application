@@ -5,134 +5,97 @@ import { Decryptor } from 'node-seal/implementation/decryptor';
 import { Encryptor } from 'node-seal/implementation/encryptor';
 import { Evaluator } from 'node-seal/implementation/evaluator';
 import { GaloisKeys } from 'node-seal/implementation/galois-keys';
+import { KeyGenerator } from 'node-seal/implementation/key-generator';
 import { PublicKey } from 'node-seal/implementation/public-key';
 import { RelinKeys } from 'node-seal/implementation/relin-keys';
 import { SEALLibrary } from 'node-seal/implementation/seal';
+import { SecretKey } from 'node-seal/implementation/secret-key';
 
 
 export class CKKSSealBuilder {
     private _seal: SEALLibrary;
-    private _securityLevel: any;
-    private _polyModulusDegree: number | null;
-    private _bitSizes: number[] | null;
-    private _scale: number | null;
-    private _rotationSteps: number[] | null;
-    private _serializedPublicKey: Uint8Array | null;
-    private _serializedGaloisKey: Uint8Array | null;
-    private _serializedRelinKeys: Uint8Array | null;
+    private _scale: number;
+    private _context: Context;
+    private _keyGenerator: KeyGenerator;
+    private _secretKey: SecretKey | null;
+    private _publicKey: PublicKey;
+    private _relinKeys: RelinKeys;
+    private _galoisKeys: GaloisKeys;
 
-    constructor(seal: SEALLibrary, securityLevel: any) {
-        this._seal = seal;
-        this._securityLevel = securityLevel;
-        this._polyModulusDegree = null;
-        this._bitSizes = null;
-        this._scale = null;
-        this._rotationSteps = null;
-        this._serializedPublicKey = null;
-        this._serializedGaloisKey = null;
-        this._serializedRelinKeys = null;
-    }
-
-    public setCoeffModulus(polyModulusDegree: number, bitSizes: number[]) {
-        this._polyModulusDegree = polyModulusDegree;
-
+    constructor(seal: SEALLibrary, securityLevel: any, polyModulusDegree: number, bitSizes: number[], scale: number) {
         if (bitSizes.length === 0) {
             throw new Error("BitSizes array is empty.");
-        } else {
+        }
+        else {
             const totalBitSize = bitSizes.reduce((sum, bitSize) => sum + bitSize, 0);
-            const maxBitCount = this._seal.CoeffModulus.MaxBitCount(this._polyModulusDegree, this._securityLevel);
+            const maxBitCount = seal.CoeffModulus.MaxBitCount(polyModulusDegree, securityLevel);
 
             if (totalBitSize > maxBitCount) {
                 throw new Error(`BitSizes has been over CoeffModulus's MaxBitCount(${maxBitCount}).`);
-            } else {
-                this._bitSizes = bitSizes;
+            }
+            else {
+                const schemeType = seal.SchemeType.ckks;
+                const coeffModulus = seal.CoeffModulus.Create(polyModulusDegree, Int32Array.from(bitSizes));
+                const contextParms = seal.EncryptionParameters(schemeType);
+                contextParms.setPolyModulusDegree(polyModulusDegree);
+                contextParms.setCoeffModulus(coeffModulus);
+                const context = seal.Context(contextParms, true, securityLevel);
+                const keyGenerator = seal.KeyGenerator(context);
+
+                this._seal = seal;
+                this._scale = scale;
+                this._context = context;
+                this._keyGenerator = keyGenerator;
+                this._secretKey = null;
+                this._publicKey = seal.PublicKey();
+                this._relinKeys = seal.RelinKeys();
+                this._galoisKeys = seal.GaloisKeys();
             }
         }
+    }
 
+    public createSecretKey() {
+        this._secretKey = this._keyGenerator.secretKey();
         return this;
     }
 
-    public setScale(scale: number) {
-        this._scale = scale;
+    public createPublicKey() {
+        this._publicKey = this._keyGenerator.createPublicKey();
         return this;
     }
 
-    public setRotationSteps(rotationSteps: number[]) {
-        this._rotationSteps = rotationSteps;
+    public createRelinKeys() {
+        this._relinKeys = this._keyGenerator.createRelinKeys();
         return this;
     }
 
-    public deserializePublicKey(serializedPublicKey: Uint8Array): CKKSSealBuilder {
-        this._serializedPublicKey = serializedPublicKey;
+    public createGaloisKeys(rotationSteps?: number[]) {
+        this._galoisKeys = this._keyGenerator.createGaloisKeys(rotationSteps && Int32Array.from(rotationSteps));
         return this;
     }
 
-    public deserializeGaloisKey(serializedGaloisKey: Uint8Array): CKKSSealBuilder {
-        this._serializedGaloisKey = serializedGaloisKey;
+    public loadPublicKey(serializedPublicKey: Uint8Array) {
+        this._publicKey.loadArray(this._context, serializedPublicKey);
         return this;
     }
 
-    public deserializeRelinKeys(serializedRelinKeys: Uint8Array): CKKSSealBuilder {
-        this._serializedRelinKeys = serializedRelinKeys;
+    public loadRelinKeys(serializedRelinKeys: Uint8Array) {
+        this._relinKeys.loadArray(this._context, serializedRelinKeys);
+        return this;
+    }
+
+    public loadGaloisKeys(serializedGaloisKeys: Uint8Array) {
+        this._galoisKeys.loadArray(this._context, serializedGaloisKeys);
         return this;
     }
 
     build() {
-        if (this._polyModulusDegree === null) {
-            throw new Error("Polynomial modulus degree is not set. Please call setCoeffModulus with a valid degree.");
-        }
-        if (this._bitSizes === null) {
-            throw new Error("Coefficient modulus bit sizes are not set. Please call setCoeffModulus with valid bit sizes.");
-        }
-        if (this._scale === null) {
-            throw new Error("Scale is not set. Please call setScale with a valid scale value.");
-        }
-
-        const schemeType = this._seal.SchemeType.ckks;
-        const coeffModulus = this._seal.CoeffModulus.Create(this._polyModulusDegree, Int32Array.from((this._bitSizes)));
-
-        // console.log(this._polyModulusDegree);
-        // console.log(this._securityLevel, typeof this._securityLevel);
-        // console.log(this._seal.CoeffModulus.MaxBitCount(this._polyModulusDegree, this._securityLevel));
-        // console.log(this._bitSizes);
-
-        const contextParms = this._seal.EncryptionParameters(schemeType);
-        contextParms.setPolyModulusDegree(this._polyModulusDegree);
-        contextParms.setCoeffModulus(coeffModulus);
-
         try {
-            const context = this._seal.Context(contextParms, true, this._securityLevel);
-
-            const keyGenerator = this._seal.KeyGenerator(context);
-            const secretKey = keyGenerator.secretKey();
-            let publicKey = this._seal.PublicKey();
-            let relinKeys = this._seal.RelinKeys();
-            let galoisKeys = this._seal.GaloisKeys();
-
-            if (this._serializedPublicKey) {
-                publicKey.loadArray(context, this._serializedPublicKey);
-            } else {
-                publicKey = keyGenerator.createPublicKey();
-            }
-
-            if (this._serializedRelinKeys) {
-                relinKeys.loadArray(context, this._serializedRelinKeys);
-            } else {
-                relinKeys = keyGenerator.createRelinKeys();
-            }
-
-            if (this._serializedGaloisKey) {
-                galoisKeys.loadArray(context, this._serializedGaloisKey);
-            } else {
-                galoisKeys = keyGenerator.createGaloisKeys(this._rotationSteps ? Int32Array.from(this._rotationSteps) : undefined);
-            }
-
-            const encryptor = this._seal.Encryptor(context, publicKey);
-            const decryptor = this._seal.Decryptor(context, secretKey);
-            const evaluator = this._seal.Evaluator(context);
-            const encoder = this._seal.CKKSEncoder(context);
-
-            return new CKKSSeal(this._seal, this._scale, context, encoder, publicKey, relinKeys, galoisKeys, encryptor, decryptor, evaluator);
+            const encryptor = this._seal.Encryptor(this._context, this._publicKey);
+            const decryptor = this._secretKey ? this._seal.Decryptor(this._context, this._secretKey) : null;
+            const evaluator = this._seal.Evaluator(this._context);
+            const encoder = this._seal.CKKSEncoder(this._context);
+            return new CKKSSeal(this._seal, this._scale, this._context, encoder, this._publicKey, this._relinKeys, this._galoisKeys, encryptor, decryptor, evaluator);
         }
         catch (error) {
             if (error instanceof Error) {
@@ -154,7 +117,7 @@ export class CKKSSeal {
     private _relinKeys: RelinKeys;
     private _galoisKeys: GaloisKeys;
     private _encryptor: Encryptor;
-    private _decryptor: Decryptor;
+    private _decryptor: Decryptor | null;
     private _evaluator: Evaluator;
 
     constructor(
@@ -166,7 +129,7 @@ export class CKKSSeal {
         relinKeys: RelinKeys,
         galoisKeys: GaloisKeys,
         encryptor: Encryptor,
-        decryptor: Decryptor,
+        decryptor: Decryptor | null,
         evaluator: Evaluator
     ) {
         this._seal = seal;
@@ -264,6 +227,7 @@ export class CKKSSeal {
     }
 
     public decrypt(cipherText: CipherText): number[] {
+        if (this._decryptor === null) throw new Error("Decryptor is null");
         const plainText = this._seal.PlainText();
         this._decryptor.decrypt(cipherText, plainText);
         const decoded = Array.from(this._encoder.decode(plainText));

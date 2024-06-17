@@ -29,6 +29,19 @@ export default class KidneyDiseasePredictionController {
             }
 
 
+            // const ckksSeal = await NodeSealProvider.getSeal().then((nodeSeal) => {
+            //     return (predictModel === "linear"
+            //         ? new CKKSSealBuilder(nodeSeal, nodeSeal.SecurityLevel.tc128, Math.pow(2, 14), [60, 60, 60, 60], Math.pow(2, 60))
+            //         : new CKKSSealBuilder(nodeSeal, nodeSeal.SecurityLevel.tc128, Math.pow(2, 15), [60, 60, 60, 60, 60, 60, 60, 60, 60], Math.pow(2, 60))
+            //     )
+            //         .loadPublicKey()
+            //         .createRelinKeys()
+            //         .createGaloisKeys([1, 2, 4, 8, 16])
+            //         .build()
+            // })
+
+
+
             console.log("Start loading keys and patient data");
             const loadStartTime = Date.now(); // 키와 데이터 로드 시작 시간
 
@@ -66,12 +79,10 @@ export default class KidneyDiseasePredictionController {
                     buildStartTime = Date.now(); // CKKS Seal 빌드 시작 시간
 
                     const ckksSeal = await NodeSealProvider.getSeal().then((nodeSeal) => {
-                        return new CKKSSealBuilder(nodeSeal, nodeSeal.SecurityLevel.tc128)
-                            .setCoeffModulus(Math.pow(2, 14), [60, 60, 60, 60])
-                            .setScale(Math.pow(2, 60))
-                            .deserializePublicKey(serializedPublickey)
-                            .deserializeRelinKeys(serializedRelinKeys)
-                            .deserializeGaloisKey(serializedGaloisKeys)
+                        return new CKKSSealBuilder(nodeSeal, nodeSeal.SecurityLevel.tc128, Math.pow(2, 14), [60, 60, 60, 60], Math.pow(2, 60))
+                            .loadPublicKey(serializedPublickey)
+                            .loadRelinKeys(serializedRelinKeys)
+                            .loadGaloisKeys(serializedGaloisKeys)
                             .build();
                     });
 
@@ -103,12 +114,10 @@ export default class KidneyDiseasePredictionController {
                     buildStartTime = Date.now(); // CKKS Seal 빌드 시작 시간
 
                     const ckksSeal = await NodeSealProvider.getSeal().then((nodeSeal) => {
-                        return new CKKSSealBuilder(nodeSeal, nodeSeal.SecurityLevel.tc128)
-                            .setCoeffModulus(Math.pow(2, 15), [60, 60, 60, 60, 60, 60, 60, 60, 60])
-                            .setScale(Math.pow(2, 60))
-                            .deserializePublicKey(serializedPublickey)
-                            .deserializeRelinKeys(serializedRelinKeys)
-                            .deserializeGaloisKey(serializedGaloisKeys)
+                        return new CKKSSealBuilder(nodeSeal, nodeSeal.SecurityLevel.tc128, Math.pow(2, 15), [60, 60, 60, 60, 60, 60, 60, 60, 60], Math.pow(2, 60))
+                            .loadPublicKey(serializedPublickey)
+                            .loadRelinKeys(serializedRelinKeys)
+                            .loadGaloisKeys(serializedGaloisKeys)
                             .build();
                     });
 
