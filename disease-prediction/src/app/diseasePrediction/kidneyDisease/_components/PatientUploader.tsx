@@ -1,6 +1,5 @@
 "use client"
 
-import { CKKSSeal } from "@/core/modules/homomorphic-encryption/ckks";
 import { Dispatch, SetStateAction, useCallback } from "react";
 import Papa from 'papaparse';
 import Swal from 'sweetalert2';
