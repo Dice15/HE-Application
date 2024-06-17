@@ -4,7 +4,7 @@ import { CKKSSeal, CKKSSealBuilder } from '@/core/modules/homomorphic-encryption
 import styled from "styled-components";
 import { NodeSealProvider } from '@/core/modules/homomorphic-encryption/node-seal';
 import axios from 'axios';
-import { useCallback, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import Swal from 'sweetalert2';
 import PatientTable from './PatientTable';
 import ProgressBar from './ProgressBar';
@@ -295,6 +295,8 @@ export default function KidneyDiseasePrediction() {
     //                 .build();
     //         });
 
+    //         return;
+
     //         console.log(ckksSeal.serializePublicKey().length);
     //         console.log(ckksSeal.serializeRelinKeys().length);
     //         console.log(ckksSeal.serializeGaloisKey().length);
@@ -314,7 +316,7 @@ export default function KidneyDiseasePrediction() {
     //         console.log(ckksSeal.decrypt(logit)[0]);
 
 
-    //         let x = Array.from({ length: 9 }) as CipherText[];
+    //         let x: any[] = Array.from({ length: 9 });
     //         x[1] = logit;
     //         x[2] = ckksSeal.multiply(x[1], x[1]);
     //         x[4] = ckksSeal.multiply(x[2], x[2]);

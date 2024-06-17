@@ -8,7 +8,6 @@ import { GaloisKeys } from 'node-seal/implementation/galois-keys';
 import { PublicKey } from 'node-seal/implementation/public-key';
 import { RelinKeys } from 'node-seal/implementation/relin-keys';
 import { SEALLibrary } from 'node-seal/implementation/seal';
-import { SecretKey } from 'node-seal/implementation/secret-key';
 
 
 export class CKKSSealBuilder {
@@ -106,18 +105,26 @@ export class CKKSSealBuilder {
 
             const keyGenerator = this._seal.KeyGenerator(context);
             const secretKey = keyGenerator.secretKey();
-            const publicKey = keyGenerator.createPublicKey();
-            const relinKeys = keyGenerator.createRelinKeys();
-            const galoisKeys = keyGenerator.createGaloisKeys(this._rotationSteps ? Int32Array.from(this._rotationSteps) : undefined);
+            let publicKey = this._seal.PublicKey();
+            let relinKeys = this._seal.RelinKeys();
+            let galoisKeys = this._seal.GaloisKeys();
 
             if (this._serializedPublicKey) {
                 publicKey.loadArray(context, this._serializedPublicKey);
+            } else {
+                publicKey = keyGenerator.createPublicKey();
             }
+
             if (this._serializedRelinKeys) {
                 relinKeys.loadArray(context, this._serializedRelinKeys);
+            } else {
+                relinKeys = keyGenerator.createRelinKeys();
             }
+
             if (this._serializedGaloisKey) {
                 galoisKeys.loadArray(context, this._serializedGaloisKey);
+            } else {
+                galoisKeys = keyGenerator.createGaloisKeys(this._rotationSteps ? Int32Array.from(this._rotationSteps) : undefined);
             }
 
             const encryptor = this._seal.Encryptor(context, publicKey);
@@ -125,7 +132,7 @@ export class CKKSSealBuilder {
             const evaluator = this._seal.Evaluator(context);
             const encoder = this._seal.CKKSEncoder(context);
 
-            return new CKKSSeal(this._seal, this._scale, context, encoder, secretKey, publicKey, relinKeys, galoisKeys, encryptor, decryptor, evaluator);
+            return new CKKSSeal(this._seal, this._scale, context, encoder, publicKey, relinKeys, galoisKeys, encryptor, decryptor, evaluator);
         }
         catch (error) {
             if (error instanceof Error) {
@@ -143,7 +150,6 @@ export class CKKSSeal {
     private _scale: number;
     private _context: Context;
     private _encoder: CKKSEncoder;
-    private _secretKey: SecretKey;
     private _publicKey: PublicKey;
     private _relinKeys: RelinKeys;
     private _galoisKeys: GaloisKeys;
@@ -156,7 +162,6 @@ export class CKKSSeal {
         scale: number,
         context: Context,
         encoder: CKKSEncoder,
-        secretKey: SecretKey,
         publicKey: PublicKey,
         relinKeys: RelinKeys,
         galoisKeys: GaloisKeys,
@@ -168,17 +173,12 @@ export class CKKSSeal {
         this._scale = scale;
         this._context = context;
         this._encoder = encoder;
-        this._secretKey = secretKey;
         this._publicKey = publicKey;
         this._relinKeys = relinKeys;
         this._galoisKeys = galoisKeys;
         this._encryptor = encryptor;
         this._decryptor = decryptor;
         this._evaluator = evaluator;
-    }
-
-    public serializeSecretKey(): Uint8Array {
-        return this._secretKey.saveArray();
     }
 
     public serializePublicKey(): Uint8Array {
