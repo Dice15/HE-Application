@@ -29,48 +29,35 @@ export default class KidneyDiseasePredictionController {
             }
 
 
-            // const ckksSeal = await NodeSealProvider.getSeal().then((nodeSeal) => {
-            //     return (predictModel === "linear"
-            //         ? new CKKSSealBuilder(nodeSeal, nodeSeal.SecurityLevel.tc128, Math.pow(2, 14), [60, 60, 60, 60], Math.pow(2, 60))
-            //         : new CKKSSealBuilder(nodeSeal, nodeSeal.SecurityLevel.tc128, Math.pow(2, 15), [60, 60, 60, 60, 60, 60, 60, 60, 60], Math.pow(2, 60))
-            //     )
-            //         .loadPublicKey()
-            //         .createRelinKeys()
-            //         .createGaloisKeys([1, 2, 4, 8, 16])
-            //         .build()
-            // })
+            // console.log("Start loading keys and patient data");
+            // const loadStartTime = Date.now(); // 키와 데이터 로드 시작 시간
 
+            // const [serializedPublickey, serializedRelinKeys, serializedGaloisKeys, serializedPatientData] = await Promise.all([
+            //     CkksKeyManagementService.loadCkksKey(session.user.id, "publicKey").then((publicKey) => {
+            //         console.log(`Loaded publicKey: ${publicKey.length}(length)`);
+            //         return publicKey;
+            //     }),
+            //     CkksKeyManagementService.loadCkksKey(session.user.id, "relinKeys").then((relinKeys) => {
+            //         console.log(`Loaded relinKeys: ${relinKeys.length}(length)`);
+            //         return relinKeys;
+            //     }),
+            //     CkksKeyManagementService.loadCkksKey(session.user.id, "galoisKeys").then((galoisKeys) => {
+            //         console.log(`Loaded galoisKeys: ${galoisKeys.length}(length)`);
+            //         return galoisKeys;
+            //     }),
+            //     PatientDataManagementService.loadPatientData(session.user.id).then((patientData) => {
+            //         console.log(`Loaded patientData: ${patientData.length}(length)`);
+            //         return patientData;
+            //     })
+            // ]);
 
+            // const loadEndTime = Date.now(); // 키와 데이터 로드 종료 시간
+            // console.log(`Time taken to load keys and patient data: ${loadEndTime - loadStartTime} ms`);
 
-            console.log("Start loading keys and patient data");
-            const loadStartTime = Date.now(); // 키와 데이터 로드 시작 시간
-
-            const [serializedPublickey, serializedRelinKeys, serializedGaloisKeys, serializedPatientData] = await Promise.all([
-                CkksKeyManagementService.loadCkksKey(session.user.id, "publicKey").then((publicKey) => {
-                    console.log(`Loaded publicKey: ${publicKey.length}(length)`);
-                    return publicKey;
-                }),
-                CkksKeyManagementService.loadCkksKey(session.user.id, "relinKeys").then((relinKeys) => {
-                    console.log(`Loaded relinKeys: ${relinKeys.length}(length)`);
-                    return relinKeys;
-                }),
-                CkksKeyManagementService.loadCkksKey(session.user.id, "galoisKeys").then((galoisKeys) => {
-                    console.log(`Loaded galoisKeys: ${galoisKeys.length}(length)`);
-                    return galoisKeys;
-                }),
-                PatientDataManagementService.loadPatientData(session.user.id).then((patientData) => {
-                    console.log(`Loaded patientData: ${patientData.length}(length)`);
-                    return patientData;
-                })
-            ]);
-
-            const loadEndTime = Date.now(); // 키와 데이터 로드 종료 시간
-            console.log(`Time taken to load keys and patient data: ${loadEndTime - loadStartTime} ms`);
-
-            if (serializedPublickey.length === 0 || serializedRelinKeys.length === 0 || serializedGaloisKeys.length === 0 || serializedPatientData.length === 0) {
-                response.status(502).json({ msg: "Failed download." });
-                return;
-            }
+            // if (serializedPublickey.length === 0 || serializedRelinKeys.length === 0 || serializedGaloisKeys.length === 0 || serializedPatientData.length === 0) {
+            //     response.status(502).json({ msg: "Failed download." });
+            //     return;
+            // }
 
             let buildStartTime, buildEndTime, predictStartTime, predictEndTime;
             switch (predictModel) {
@@ -78,11 +65,11 @@ export default class KidneyDiseasePredictionController {
                     console.log("Start building CKKS seal for linear model");
                     buildStartTime = Date.now(); // CKKS Seal 빌드 시작 시간
 
-                    const ckksSeal = await NodeSealProvider.getSeal().then((nodeSeal) => {
+                    const ckksSeal = await NodeSealProvider.getSeal().then(async (nodeSeal) => {
                         return new CKKSSealBuilder(nodeSeal, nodeSeal.SecurityLevel.tc128, Math.pow(2, 14), [60, 60, 60, 60], Math.pow(2, 60))
-                            .loadPublicKey(serializedPublickey)
-                            .loadRelinKeys(serializedRelinKeys)
-                            .loadGaloisKeys(serializedGaloisKeys)
+                            .loadPublicKey(await CkksKeyManagementService.loadCkksKey(session.user.id, "publicKey"))
+                            .loadRelinKeys(await CkksKeyManagementService.loadCkksKey(session.user.id, "relinKeys"))
+                            .loadGaloisKeys(await CkksKeyManagementService.loadCkksKey(session.user.id, "galoisKeys"))
                             .build();
                     });
 
@@ -94,7 +81,7 @@ export default class KidneyDiseasePredictionController {
 
                     const prediction = FastKidneyDiseasePredictionService.predictKidneyDisease(
                         ckksSeal,
-                        ckksSeal.deserializeCipherText(serializedPatientData),
+                        ckksSeal.deserializeCipherText(await PatientDataManagementService.loadPatientData(session.user.id)),
                         parseInt(featureSize)
                     );
 
@@ -113,11 +100,11 @@ export default class KidneyDiseasePredictionController {
                     console.log("Start building CKKS seal for logistic model");
                     buildStartTime = Date.now(); // CKKS Seal 빌드 시작 시간
 
-                    const ckksSeal = await NodeSealProvider.getSeal().then((nodeSeal) => {
+                    const ckksSeal = await NodeSealProvider.getSeal().then(async (nodeSeal) => {
                         return new CKKSSealBuilder(nodeSeal, nodeSeal.SecurityLevel.tc128, Math.pow(2, 15), [60, 60, 60, 60, 60, 60, 60, 60, 60], Math.pow(2, 60))
-                            .loadPublicKey(serializedPublickey)
-                            .loadRelinKeys(serializedRelinKeys)
-                            .loadGaloisKeys(serializedGaloisKeys)
+                            .loadPublicKey(await CkksKeyManagementService.loadCkksKey(session.user.id, "publicKey"))
+                            .loadRelinKeys(await CkksKeyManagementService.loadCkksKey(session.user.id, "relinKeys"))
+                            .loadGaloisKeys(await CkksKeyManagementService.loadCkksKey(session.user.id, "galoisKeys"))
                             .build();
                     });
 
@@ -129,7 +116,7 @@ export default class KidneyDiseasePredictionController {
 
                     const prediction = AccurateKidneyDiseasePredictionService.predictKidneyDisease(
                         ckksSeal,
-                        ckksSeal.deserializeCipherText(serializedPatientData),
+                        ckksSeal.deserializeCipherText(await PatientDataManagementService.loadPatientData(session.user.id)),
                         parseInt(featureSize)
                     );
 

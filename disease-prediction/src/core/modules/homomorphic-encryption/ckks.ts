@@ -75,16 +75,19 @@ export class CKKSSealBuilder {
     }
 
     public loadPublicKey(serializedPublicKey: Uint8Array) {
+        console.log('loadPublicKey', serializedPublicKey.length);
         this._publicKey.loadArray(this._context, serializedPublicKey);
         return this;
     }
 
     public loadRelinKeys(serializedRelinKeys: Uint8Array) {
+        console.log('loadRelinKeys', serializedRelinKeys.length);
         this._relinKeys.loadArray(this._context, serializedRelinKeys);
         return this;
     }
 
     public loadGaloisKeys(serializedGaloisKeys: Uint8Array) {
+        console.log('loadGaloisKeys', serializedGaloisKeys.length);
         this._galoisKeys.loadArray(this._context, serializedGaloisKeys);
         return this;
     }
