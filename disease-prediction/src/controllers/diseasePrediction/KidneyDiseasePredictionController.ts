@@ -29,36 +29,6 @@ export default class KidneyDiseasePredictionController {
             }
 
 
-            // console.log("Start loading keys and patient data");
-            // const loadStartTime = Date.now(); // 키와 데이터 로드 시작 시간
-
-            // const [serializedPublickey, serializedRelinKeys, serializedGaloisKeys, serializedPatientData] = await Promise.all([
-            //     CkksKeyManagementService.loadCkksKey(session.user.id, "publicKey").then((publicKey) => {
-            //         console.log(`Loaded publicKey: ${publicKey.length}(length)`);
-            //         return publicKey;
-            //     }),
-            //     CkksKeyManagementService.loadCkksKey(session.user.id, "relinKeys").then((relinKeys) => {
-            //         console.log(`Loaded relinKeys: ${relinKeys.length}(length)`);
-            //         return relinKeys;
-            //     }),
-            //     CkksKeyManagementService.loadCkksKey(session.user.id, "galoisKeys").then((galoisKeys) => {
-            //         console.log(`Loaded galoisKeys: ${galoisKeys.length}(length)`);
-            //         return galoisKeys;
-            //     }),
-            //     PatientDataManagementService.loadPatientData(session.user.id).then((patientData) => {
-            //         console.log(`Loaded patientData: ${patientData.length}(length)`);
-            //         return patientData;
-            //     })
-            // ]);
-
-            // const loadEndTime = Date.now(); // 키와 데이터 로드 종료 시간
-            // console.log(`Time taken to load keys and patient data: ${loadEndTime - loadStartTime} ms`);
-
-            // if (serializedPublickey.length === 0 || serializedRelinKeys.length === 0 || serializedGaloisKeys.length === 0 || serializedPatientData.length === 0) {
-            //     response.status(502).json({ msg: "Failed download." });
-            //     return;
-            // }
-
             let buildStartTime, buildEndTime, predictStartTime, predictEndTime;
             switch (predictModel) {
                 case "linear": {

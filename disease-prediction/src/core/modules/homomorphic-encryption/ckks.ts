@@ -29,7 +29,6 @@ export class CKKSSealBuilder {
         else {
             const totalBitSize = bitSizes.reduce((sum, bitSize) => sum + bitSize, 0);
             const maxBitCount = seal.CoeffModulus.MaxBitCount(polyModulusDegree, securityLevel);
-            console.log(totalBitSize, maxBitCount)
 
             if (totalBitSize > maxBitCount) {
                 throw new Error(`BitSizes has been over CoeffModulus's MaxBitCount(${maxBitCount}).`);
