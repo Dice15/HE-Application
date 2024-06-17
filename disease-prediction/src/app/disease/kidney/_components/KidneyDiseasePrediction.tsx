@@ -42,8 +42,8 @@ export default function KidneyDiseasePrediction() {
         return NodeSealProvider.getSeal()
             .then((nodeSeal) => {
                 return (predictModel === "linear"
-                    ? new CKKSSealBuilder(nodeSeal, nodeSeal.SecurityLevel.tc128, Math.pow(2, 14), [60, 60, 60, 60], Math.pow(2, 60))
-                    : new CKKSSealBuilder(nodeSeal, nodeSeal.SecurityLevel.tc128, Math.pow(2, 15), [60, 60, 60, 60, 60, 60, 60, 60, 60], Math.pow(2, 60))
+                    ? new CKKSSealBuilder(nodeSeal, nodeSeal.SecurityLevel.tc128, Math.pow(2, 14), [47, 47, 47, 60], Math.pow(2, 47))
+                    : new CKKSSealBuilder(nodeSeal, nodeSeal.SecurityLevel.tc128, Math.pow(2, 14), [47, 47, 47, 47, 47, 47, 47, 47, 60], Math.pow(2, 47))
                 )
                     .createSecretKey()
                     .createPublicKey()
@@ -286,14 +286,14 @@ export default function KidneyDiseasePrediction() {
     // useEffect(() => {
     //     const temp = async () => {
     //         const ckksSeal = await NodeSealProvider.getSeal().then((nodeSeal) => {
-    //             return new CKKSSealBuilder(nodeSeal, nodeSeal.SecurityLevel.tc128)
-    //                 .setCoeffModulus(Math.pow(2, 15), [60, 60, 60, 60, 60, 60, 60, 60, 60])
-    //                 .setScale(Math.pow(2, 60))
-    //                 .setRotationSteps([1, 2, 4, 8, 16])
+    //             // return new CKKSSealBuilder(nodeSeal, nodeSeal.SecurityLevel.tc128, Math.pow(2, 14), [60, 60, 60, 60, 60, 60, 60, 60, 60], Math.pow(2, 60))
+    //             return new CKKSSealBuilder(nodeSeal, nodeSeal.SecurityLevel.tc128, Math.pow(2, 14), [47, 47, 47, 47, 47, 47, 47, 47, 60], Math.pow(2, 47))
+    //                 .createSecretKey()
+    //                 .createPublicKey()
+    //                 .createRelinKeys()
+    //                 .createGaloisKeys([1, 2, 4, 8, 16])
     //                 .build();
     //         });
-
-    //         return;
 
     //         console.log(ckksSeal.serializePublicKey().length);
     //         console.log(ckksSeal.serializeRelinKeys().length);
