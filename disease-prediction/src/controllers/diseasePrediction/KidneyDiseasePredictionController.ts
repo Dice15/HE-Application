@@ -3,13 +3,13 @@ import { NodeSealProvider } from "@/core/modules/homomorphic-encryption/node-sea
 import CkksKeyManagementService from "@/services/ckksKeyManager/CkksKeyManagementService";
 import AccurateKidneyDiseasePredictionService from "@/services/diseasePrediction/AccurateKidneyDiseasePredictionService";
 import FastKidneyDiseasePredictionService from "@/services/diseasePrediction/FastKidneyDiseasePredictionService";
+import PatientDataManagementService from "@/services/patientDataManager/PatientDataManagementService";
 import { NextApiRequest, NextApiResponse } from "next";
 import { Session } from "next-auth";
 
 
 interface IKidneyDiseasePredictionControllerParams {
-    serializedPatientInfo: string | undefined;
-    chunkSizePerPatientData: string | undefined;
+    featureSize: string | undefined;
     predictModel: ("linear" | "logistic") | undefined;
 }
 
@@ -20,19 +20,35 @@ export default class KidneyDiseasePredictionController {
 
     public static async handlePredictKidneyDisease(request: NextApiRequest, response: NextApiResponse, session: Session): Promise<void> {
         try {
-            const { serializedPatientInfo, chunkSizePerPatientData, predictModel } = request.body as IKidneyDiseasePredictionControllerParams;
+            const { featureSize, predictModel } = request.body as IKidneyDiseasePredictionControllerParams;
 
-            if (serializedPatientInfo === undefined || chunkSizePerPatientData === undefined || predictModel === undefined) {
+            if (featureSize === undefined || predictModel === undefined) {
                 response.status(400).json({ msg: "Missing required body data." });
                 return;
             }
 
-            const serializedPublickey = await CkksKeyManagementService.loadCkksKey(session.user.id, "publicKey");
-            const serializedRelinKeys = await CkksKeyManagementService.loadCkksKey(session.user.id, "relinKeys");
-            const serializedGaloisKeys = await CkksKeyManagementService.loadCkksKey(session.user.id, "galoisKeys");
+            const serializedPublickey = await CkksKeyManagementService.loadCkksKey(session.user.id, "publicKey").then((publicKey) => {
+                console.log(`Loaded publicKey: ${publicKey.length}(length)`);
+                return publicKey;
+            });
 
-            if (serializedPublickey.length === 0 || serializedRelinKeys.length === 0 || serializedGaloisKeys.length === 0) {
-                response.status(502).json({ msg: "Missing Key." });
+            const serializedRelinKeys = await CkksKeyManagementService.loadCkksKey(session.user.id, "relinKeys").then((relinKeys) => {
+                console.log(`Loaded relinKeys: ${relinKeys.length}(length)`);
+                return relinKeys;
+            });
+
+            const serializedGaloisKeys = await CkksKeyManagementService.loadCkksKey(session.user.id, "galoisKeys").then((galoisKeys) => {
+                console.log(`Loaded galoisKeys: ${galoisKeys.length}(length)`);
+                return galoisKeys;
+            });
+
+            const serializedPatientData = await PatientDataManagementService.loadPatientData(session.user.id).then((patientData) => {
+                console.log(`Loaded patientData: ${patientData.length}(length)`);
+                return patientData;
+            });
+
+            if (serializedPublickey.length === 0 || serializedRelinKeys.length === 0 || serializedGaloisKeys.length === 0 || serializedPatientData.length === 0) {
+                response.status(502).json({ msg: "Failed download." });
                 return;
             }
 
@@ -51,14 +67,14 @@ export default class KidneyDiseasePredictionController {
 
                     const prediction = FastKidneyDiseasePredictionService.predictKidneyDisease(
                         ckksSeal,
-                        ckksSeal.deserializeCipherText(serializedPatientInfo),
-                        parseInt(chunkSizePerPatientData)
+                        ckksSeal.deserializeCipherText(serializedPatientData),
+                        parseInt(featureSize)
                     );
 
                     response.status(200).json({
                         msg: "정상적으로 처리되었습니다.",
                         data: {
-                            prediction: ckksSeal.serializeCipherText(prediction),
+                            prediction: this.uint8ArrayToBase64(ckksSeal.serializeCipherText(prediction)),
                         }
                     });
                     break;
@@ -77,14 +93,14 @@ export default class KidneyDiseasePredictionController {
 
                     const prediction = AccurateKidneyDiseasePredictionService.predictKidneyDisease(
                         ckksSeal,
-                        ckksSeal.deserializeCipherText(serializedPatientInfo),
-                        parseInt(chunkSizePerPatientData)
+                        ckksSeal.deserializeCipherText(serializedPatientData),
+                        parseInt(featureSize)
                     );
 
                     response.status(200).json({
                         msg: "정상적으로 처리되었습니다.",
                         data: {
-                            prediction: ckksSeal.serializeCipherText(prediction),
+                            prediction: this.uint8ArrayToBase64(ckksSeal.serializeCipherText(prediction)),
                         }
                     });
                     break;
@@ -98,5 +114,13 @@ export default class KidneyDiseasePredictionController {
             console.error(error);
             response.status(500).end(`${error}`);
         }
+    }
+
+    private static uint8ArrayToBase64(arr: Uint8Array): string {
+        let binaryString = '';
+        for (let i = 0; i < arr.length; i++) {
+            binaryString += String.fromCharCode(arr[i]);
+        }
+        return btoa(binaryString);
     }
 }

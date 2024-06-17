@@ -4,20 +4,19 @@ import { CKKSSeal, CKKSSealBuilder } from '@/core/modules/homomorphic-encryption
 import styled from "styled-components";
 import { NodeSealProvider } from '@/core/modules/homomorphic-encryption/node-seal';
 import axios from 'axios';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useState } from 'react';
 import Swal from 'sweetalert2';
 import PatientTable from './PatientTable';
 import ProgressBar from './ProgressBar';
 import PatientUploader from './PatientUploader';
 import PredictModelSelector from './PredictModelSelector';
 import { KidneyDisease } from '../_classes/KidneyDisease';
-import { CipherText } from 'node-seal/implementation/cipher-text';
 
 
 export default function KidneyDiseasePrediction() {
     const [predictionModel, setPredictionModel] = useState<'linear' | 'logistic'>('linear');
     const [uploadedPatientData, setUploadedPatientData] = useState<any[]>([]);
-    const [predictions, setPredictions] = useState<boolean[]>([]);
+    const [diseasePredictions, setDiseasePredictions] = useState<boolean[]>([]);
     const [progressPercent, setProgressPercent] = useState<number>(0);
 
 
@@ -185,45 +184,71 @@ export default function KidneyDiseasePrediction() {
     }, []);
 
 
-    // const predicting = useCallback((ckksSeal: CKKSSeal, zippedData: any[][], chunkSize: number, predictModel: "linear" | "logistic", afterPredict: (prediction: number[], index: number) => void): Promise<void>[] => {
-    //     return zippedData.map((data, index) => {
-    //         const body = {
-    //             serializedPatientInfo: ckksSeal.serializeCipherText(ckksSeal.encrypt(data)),
-    //             chunkSizePerPatientData: chunkSize,
-    //             predictModel: predictModel
-    //         };
+    const handlePredictDisease = useCallback((ckksSeal: CKKSSeal, chunkSize: number, predictModel: "linear" | "logistic"): Promise<number[]> => {
+        const base64ToUint8Array = (base64: string): Uint8Array => {
+            const binaryString = atob(base64);
+            const length = binaryString.length;
+            const bytes = new Uint8Array(length);
+            for (let i = 0; i < length; i++) {
+                bytes[i] = binaryString.charCodeAt(i);
+            }
+            return bytes;
+        }
 
-    //         return axios.post('/api/diseasePrediction/kidneyDiseasePrediction', body)
-    //             .then((response) => {
-    //                 afterPredict(ckksSeal.decrypt(ckksSeal.deserializeCipherText(response.data.data.prediction as string)), index);
-    //             })
-    //             .catch(error => {
-    //                 console.error("Prediction error:", error);
-    //             });
-    //     })
-    // }, []);
+        return axios.post('/api/diseasePrediction/kidneyDiseasePrediction',
+            {
+                featureSize: chunkSize,
+                predictModel: predictModel
+            })
+            .then((response) => {
+                return ckksSeal.decrypt(ckksSeal.deserializeCipherText(base64ToUint8Array(response.data.data.prediction)));
+            })
+            .catch((error) => {
+                console.error("An error occurred:", error);
+                if (error instanceof Error) {
+                    throw new Error(`Failed to predicting disease: ${error.message}`);
+                } else {
+                    throw new Error('An unknown error occurred while predicting the disease');
+                }
+            });
+    }, []);
 
 
     const handleStartPredict = useCallback(async () => {
-        setPredictions(Array.from({ length: uploadedPatientData.length }, () => false));
-        setProgressPercent(0);
+        setDiseasePredictions(Array.from({ length: uploadedPatientData.length }, () => false));
 
+        setProgressPercent(0);
         handleShowProcessing('Processing', 'Initializing CkksSeal');
         await handleCreateCkksSeal(predictionModel)
             .then(async (ckksSeal) => {
+                setProgressPercent(prev => prev + 10);
                 handleShowProcessing('Processing', 'Uploading Ckkskey');
 
                 await handleUploadCkksKey(ckksSeal)
                     .then(async () => {
+                        setProgressPercent(prev => prev + 25);
                         handleShowProcessing('Processing', 'Predicting kidneydisease');
 
                         const patientData = KidneyDisease.preprocessPatientData(JSON.parse(JSON.stringify(uploadedPatientData, null, 2)) as any[]);
                         const zippedPatientData = ckksSeal.arrayZipper(patientData.rows);
+                        const totalChunkCount = zippedPatientData.zippedData.reduce((cnt, zipped) => cnt + Math.floor(zipped.length / zippedPatientData.chunkSize), 0);
 
-                        for (let i = 0, progressCounter = 0; i < zippedPatientData.zippedData.length; i++) {
+                        for (let i = 0; i < zippedPatientData.zippedData.length; i++) {
                             await handleUploadPatientData(ckksSeal, zippedPatientData.zippedData[i])
-                                .then(() => {
-                                    setProgressPercent((++progressCounter / zippedPatientData.zippedData.length) * 100)
+                                .then(async () => {
+                                    const predictions = await handlePredictDisease(ckksSeal, zippedPatientData.chunkSize, predictionModel);
+                                    const sliceCount = Math.floor(zippedPatientData.zippedData[i].length / zippedPatientData.chunkSize);
+                                    const startIndex = sliceCount * i;
+
+                                    for (let j = 0; j < sliceCount; j++) {
+                                        const result = KidneyDisease.isKidneyDisease(predictions[j * zippedPatientData.chunkSize]);
+                                        setDiseasePredictions(prevResults => {
+                                            const newResults = [...prevResults];
+                                            newResults[startIndex + j] = result;
+                                            return newResults;
+                                        });
+                                        setProgressPercent(prev => prev + ((1 / totalChunkCount) * 60));
+                                    }
                                 })
                                 .catch(() => {
                                     throw new Error('Uploading patient data failed');
@@ -243,6 +268,7 @@ export default function KidneyDiseasePrediction() {
                     })
                     .finally(async () => {
                         await handleDeleteCkksKey();
+                        setProgressPercent(100);
                     })
             })
             .catch(async () => {
@@ -256,89 +282,7 @@ export default function KidneyDiseasePrediction() {
             .finally(() => {
                 handleHideProcessing();
             });
-    }, [uploadedPatientData, handleShowProcessing, handleCreateCkksSeal, predictionModel, handleUploadCkksKey, handleUploadPatientData, handleDeletePatientData, handleDeleteCkksKey, handleHideProcessing]);
-
-
-
-    // const handleStartPredict = useCallback(async () => {
-    //     handleShowLoading('Loading...', 'Node Seal is being initialized.');
-    //     const ckksSeal = await handleCreateCkksSeal(predictModel);
-
-    //     if (ckksSeal) {
-    //         handleShowLoading('Predicting...', 'Predicting patient information.');
-    //         setProgress(0);
-    //         setPredictions(Array.from({ length: patients.length }, () => false));
-
-    //         const features = KidneyDisease.getFeatures();
-    //         const samples = KidneyDisease.transformToMLData(JSON.parse(JSON.stringify(patients, null, 2)) as any[]);
-
-    //         const { zippedData, chunkSize } = ckksSeal.arrayZipper(samples.map((sample) => features.map(feature => (sample[feature] || 0))));
-    //         const slotCount = ckksSeal.getSlotCount();
-
-    //         zippedData.forEach((data, index) => {
-    //             console.log(ckksSeal.serializeCipherText(ckksSeal.encrypt(data)).length);
-    //         })
-
-
-    //         let progressCounter = 0;
-    //         uploadCkksKey(ckksSeal).then(() => {
-    //             Promise.allSettled(
-    //                 predicting(ckksSeal, zippedData, chunkSize, predictModel, (prediction: number[], index: number) => {
-    //                     const sliceCount = Math.floor(slotCount / chunkSize);
-    //                     const startIndex = sliceCount * index;
-
-    //                     for (let i = 0; i < sliceCount; i++) {
-    //                         //console.log(startIndex + i, (1 / (1 + Math.exp(-prediction[i * chunkSize]))));
-    //                         //const result = KidneyDisease.isDisease(1 / (1 + Math.exp(- prediction[i * chunkSize])));
-    //                         const result = KidneyDisease.isDisease(prediction[i * chunkSize] as number);
-
-    //                         setPredictions(prevResults => {
-    //                             const newResults = [...prevResults];
-    //                             newResults[startIndex + i] = result;
-    //                             return newResults;
-    //                         });
-    //                     }
-
-    //                     setProgress((++progressCounter / zippedData.length) * 100);
-    //                 })
-    //             ).then(() => {
-    //                 deleteCkksKey().then(() => {
-    //                     setTimeout(() => { hideLoading() }, 2000);
-    //                 })
-    //             });
-    //         })
-    //     }
-
-    //     setTimeout(() => { hideLoading() }, 2000);
-    // }, [handleCreateCkksSeal, hideLoading, uploadCkksKey, deleteCkksKey, patients, predictModel, predicting, handleShowLoading]);
-
-
-    // useEffect(() => {
-    //     const temp = async () => {
-    //         const ckksSeal = await NodeSealProvider.getSeal().then((nodeSeal) => {
-    //             return new CKKSSealBuilder(nodeSeal, nodeSeal.SecurityLevel.tc128)
-    //                 .setCoeffModulus(Math.pow(2, 14), [60, 60, 60, 60])
-    //                 .setScale(Math.pow(2, 60))
-    //                 .setRotationSteps([1, 2, 4, 8, 16])
-    //                 .build();
-    //         });
-
-    //         console.log(ckksSeal.serializePublicKey().length);
-    //         console.log(ckksSeal.serializeRelinKeys().length);
-    //         console.log(ckksSeal.serializeGaloisKey().length);
-
-    //         const intercept = ckksSeal.encrypt([0.0025]);
-    //         const coefficients = ckksSeal.encrypt([0.03]);
-    //         const patientsData = ckksSeal.encrypt([0.05]);
-
-    //         const logit = ckksSeal.add(
-    //             ckksSeal.sumElements(ckksSeal.multiply(coefficients, patientsData), 24),
-    //             intercept
-    //         );
-    //         console.log(ckksSeal.decrypt(logit)[0]);
-    //     }
-    //     temp();
-    // }, []);
+    }, [uploadedPatientData, handleShowProcessing, handleHideProcessing, handleCreateCkksSeal, predictionModel, handleUploadCkksKey, handleUploadPatientData, handleDeletePatientData, handleDeleteCkksKey, handlePredictDisease]);
 
 
     // useEffect(() => {
@@ -420,7 +364,7 @@ export default function KidneyDiseasePrediction() {
             </PredictingContatiner>
 
             <div style={{ width: 'calc(100% - 40px)', height: 'calc(100% - 160px - 30px - 20px)', padding: '10px 20px', display: 'flex', flexDirection: "column", alignItems: 'center' }}>
-                <PatientTable title={"환자 정보"} data={uploadedPatientData} result={predictions} />
+                <PatientTable title={"환자 정보"} data={uploadedPatientData} result={diseasePredictions} />
             </div>
         </Wrapper>
     )

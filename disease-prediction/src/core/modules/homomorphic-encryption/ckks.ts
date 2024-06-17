@@ -92,10 +92,10 @@ export class CKKSSealBuilder {
         const schemeType = this._seal.SchemeType.ckks;
         const coeffModulus = this._seal.CoeffModulus.Create(this._polyModulusDegree, Int32Array.from((this._bitSizes)));
 
-        console.log(this._polyModulusDegree);
-        console.log(this._securityLevel, typeof this._securityLevel);
-        console.log(this._seal.CoeffModulus.MaxBitCount(this._polyModulusDegree, this._securityLevel));
-        console.log(this._bitSizes);
+        // console.log(this._polyModulusDegree);
+        // console.log(this._securityLevel, typeof this._securityLevel);
+        // console.log(this._seal.CoeffModulus.MaxBitCount(this._polyModulusDegree, this._securityLevel));
+        // console.log(this._bitSizes);
 
         const contextParms = this._seal.EncryptionParameters(schemeType);
         contextParms.setPolyModulusDegree(this._polyModulusDegree);

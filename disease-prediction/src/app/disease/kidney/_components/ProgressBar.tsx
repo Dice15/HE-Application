@@ -12,7 +12,7 @@ export default function ProgressBar({ progress }: ProgressBarProps) {
             <div style={{
                 width: `${progress}%`,
                 height: '100%',
-                backgroundColor: (progress < 50 ? '#cdffd6' : progress < 80 ? '#51e96d' : '#0fbd2f'),
+                backgroundColor: (progress < 50 ? '#8af59e' : progress < 80 ? '#51e96d' : '#0fbd2f'),
                 transition: 'width 0.3s'
             }} />
         </Wrapper>
