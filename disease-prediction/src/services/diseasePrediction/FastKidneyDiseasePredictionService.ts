@@ -1,4 +1,4 @@
-import { CKKSSeal } from "@/core/modules/homomorphic-encryption/ckks";
+import { CKKSSeal } from "@/core/modules/homomorphicEncryption/CKKSSeal";
 import { CipherText } from "node-seal/implementation/cipher-text";
 
 

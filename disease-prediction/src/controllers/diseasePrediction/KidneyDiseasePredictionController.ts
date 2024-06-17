@@ -1,5 +1,5 @@
-import { CKKSSealBuilder } from "@/core/modules/homomorphic-encryption/ckks";
-import { NodeSealProvider } from "@/core/modules/homomorphic-encryption/node-seal";
+import { CKKSSealBuilder } from "@/core/modules/homomorphicEncryption/CKKSSeal";
+import { NodeSealProvider } from "@/core/modules/homomorphicEncryption/NodeSeal";
 import CkksKeyManagementService from "@/services/ckksKeyManager/CkksKeyManagementService";
 import AccurateKidneyDiseasePredictionService from "@/services/diseasePrediction/AccurateKidneyDiseasePredictionService";
 import FastKidneyDiseasePredictionService from "@/services/diseasePrediction/FastKidneyDiseasePredictionService";
