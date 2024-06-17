@@ -5,13 +5,13 @@ import KidneyDiseasePredictionController from '@/controllers/diseasePrediction/K
 
 
 export const config = {
+    maxDuration: 60,
     api: {
         responseLimit: false,
         bodyParser: {
             sizeLimit: '2mb'
         }
     }
-
 };
 
 
