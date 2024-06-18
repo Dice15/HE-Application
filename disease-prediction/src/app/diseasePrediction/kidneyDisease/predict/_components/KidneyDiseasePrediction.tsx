@@ -1,16 +1,23 @@
 "use client"
 
 import styled from "styled-components";
-import { useCallback, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import Swal from 'sweetalert2';
 import PatientTable from './PatientTable';
 import ProgressBar from './ProgressBar';
 import PatientUploader from './PatientUploader';
 import PredictModelSelector from './PredictModelSelector';
 import { KidneyDiseasePredictionService } from '../_classes/KidneyDiseasePredictionService';
+import { useRouter, useSearchParams } from "next/navigation";
 
 
 export default function KidneyDiseasePrediction() {
+    // hook
+    const modelParams = useSearchParams();
+    const router = useRouter();
+
+
+    // state
     const [predictionModel, setPredictionModel] = useState<'linear' | 'logistic'>('linear');
     const [uploadedPatientData, setUploadedPatientData] = useState<any[]>([]);
     const [diseasePredictions, setDiseasePredictions] = useState<boolean[]>([]);
@@ -145,6 +152,34 @@ export default function KidneyDiseasePrediction() {
         }
     }, [handleHideProcessing, handleShowProcessing, predictionModel, uploadedPatientData]);
 
+
+    // effect
+    useEffect(() => {
+        if (modelParams) {
+            const modelParam = modelParams.get('model') ?? "";
+
+            switch (modelParam) {
+                case "fast": {
+                    setPredictionModel("linear");
+                    break;
+                }
+                case "accurate": {
+                    setPredictionModel("logistic");
+                    break;
+                }
+                default: {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Oops...',
+                        text: 'Invalid access. Redirecting to the home page.',
+                        allowOutsideClick: false,
+                    }).then(() => {
+                        router.replace('/');
+                    });
+                }
+            }
+        }
+    }, [modelParams, router]);
 
     // render
     return (

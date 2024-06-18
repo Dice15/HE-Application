@@ -1,11 +1,11 @@
 import Image from "next/image";
-import styles from "./Top.module.css";
+import styles from "./PageTopKidneyDisease.module.css";
 import Link from "next/link";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/pages/api/auth/[...nextauth]";
-import Auth from "./Auth";
+import Auth from "@/app/_components/Auth";
 
-export default async function Top() {
+export default async function PageTopKidneyDisease() {
     // const
     const isAuth = (await getServerSession(authOptions)) !== null;
 
@@ -14,7 +14,6 @@ export default async function Top() {
     return (
         <div className={styles.wrapper}>
             <div className={styles.manu}>
-
                 <Link href={"/"} prefetch={true} style={{ textDecoration: "none" }}>
                     <div className={styles.logo_field}>
                         <div className={styles.logo}>
@@ -50,12 +49,6 @@ export default async function Top() {
                     />
                 </div>
             </div>
-
-            <div className={styles.title}>
-                <h1 className={styles.text}>질병 검사 서비스</h1>
-                <h1 className={styles.text}>안전하고 간편하게!</h1>
-            </div>
-
         </div >
     );
 }

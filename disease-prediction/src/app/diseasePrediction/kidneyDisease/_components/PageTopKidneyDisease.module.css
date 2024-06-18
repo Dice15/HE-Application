@@ -96,23 +96,3 @@
 .auth_in {
     color: rgb(80, 133, 255);
 }
-
-.title {
-    height: calc(100% - 80px);
-    width: 100%;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-}
-
-.text {
-    width: 900px;
-    text-align: center;
-    margin-bottom: 10px;
-    font-size: 50px;
-    font-weight: 700;
-    line-height: 1.4;
-    color: rgb(0, 0, 0);
-    user-select: none;
-}

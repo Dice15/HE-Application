@@ -1,0 +1,81 @@
+.wrapper {
+    position: relative;
+    height: 100%;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.introduce {
+    height: calc(345px - 125px);
+    width: calc(100% - 35%);
+    padding: 100px 17.5%;
+    padding-bottom: 25px;
+}
+
+.title {
+    font-size: 30px;
+    font-weight: bold;
+    margin-bottom: 60px;
+    color: #3182F6;
+}
+
+.description {
+    font-size: 40px;
+    font-weight: bold;
+    margin-bottom: 25px;
+    color: black;
+}
+
+.model {
+    height: calc(100% - 345px - 75px);
+    width: calc(100% - 50%);
+    padding: 50px 25%;
+    padding-top: 25px;
+    display: flex;
+}
+
+.model_left {
+    position: relative;
+    height: 100%;
+    width: 50%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.model_right {
+    position: relative;
+    height: 100%;
+    width: 50%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.model_image {
+    height: 85%;
+    width: auto;
+}
+
+.model_button {
+    height: calc(100% - 85% - 50px);
+    font-size: 30px;
+    font-weight: bold;
+    color: rgb(0, 0, 0);
+    padding: 25px 25px;
+    border: 1px solid transparent;
+    border-radius: 30px;
+    background-color: transparent;
+    cursor: pointer;
+    user-select: none;
+}
+
+.model_left_button:hover {
+    color: #095ADD;
+}
+
+.model_right_button:hover {
+    color: #5F2BB3;
+}
