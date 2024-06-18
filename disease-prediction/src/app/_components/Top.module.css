@@ -1,0 +1,117 @@
+.wrapper {
+    position: relative;
+    overflow: hidden;
+    height: 100%;
+    width: 100%;
+}
+
+.manu {
+    height: 80px;
+    width: calc(100% - 40%);
+    padding: 0% 20%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.logo_field {
+    height: 60px;
+    width: 165px;
+    display: flex;
+}
+
+.logo {
+    position: relative;
+    height: 60px;
+    width: 60px;
+    margin-right: 5px;
+    user-select: none;
+}
+
+.logo_text {
+    height: 60px;
+    width: 100px;
+    font-size: 18px;
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    user-select: none;
+}
+
+.manu_field {
+    height: 60px;
+    width: 400px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.manu_button {
+    height: 60px;
+    font-size: 21px;
+    font-weight: 600;
+    color: rgb(117, 117, 117);
+    padding: 10px 20px;
+    border: 1px solid transparent;
+    border-radius: 30px;
+    background-color: transparent;
+    cursor: pointer;
+    user-select: none;
+}
+
+.manu_button:hover {
+    background-color: rgb(240, 240, 240);
+}
+
+.auth_field {
+    height: 60px;
+    width: 165px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.auth_button {
+    height: 60px;
+    font-size: 21px;
+    font-weight: 600;
+    padding: 10px 20px;
+    border: 1px solid transparent;
+    border-radius: 30px;
+    background-color: transparent;
+    cursor: pointer;
+    user-select: none;
+}
+
+.auth_button:hover {
+    background-color: rgb(240, 240, 240);
+}
+
+.auth_out {
+    color: rgb(255, 121, 121);
+}
+
+.auth_in {
+    color: rgb(80, 133, 255);
+}
+
+.title {
+    height: calc(100% - 80px);
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.text {
+    width: 900px;
+    text-align: center;
+    margin-bottom: 10px;
+    font-size: 55px;
+    font-weight: 700;
+    line-height: 1.4;
+    color: rgb(0, 0, 0);
+    user-select: none;
+}

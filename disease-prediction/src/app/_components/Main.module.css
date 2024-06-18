@@ -1,0 +1,29 @@
+.wrapper {
+    position: relative;
+    overflow: hidden;
+    height: 100vh;
+    width: 100vw;
+}
+
+.main_image {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    height: 100vh;
+    width: auto;
+}
+
+@media (min-width: calc(100vh * 21 / 9)) {
+    .main_image {
+        width: 100vw;
+        height: auto;
+    }
+}
+
+@media (max-width: calc(100vh * 21 / 9)) {
+    .main_image {
+        height: 100vh;
+        width: auto;
+    }
+}
