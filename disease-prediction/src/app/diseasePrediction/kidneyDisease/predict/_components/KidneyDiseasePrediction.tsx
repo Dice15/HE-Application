@@ -6,7 +6,6 @@ import Swal from 'sweetalert2';
 import PatientTable from './PatientTable';
 import ProgressBar from './ProgressBar';
 import PatientUploader from './PatientUploader';
-import PredictModelSelector from './PredictModelSelector';
 import { KidneyDiseasePredictionService } from '../_classes/KidneyDiseasePredictionService';
 import { useRouter, useSearchParams } from "next/navigation";
 
@@ -20,7 +19,7 @@ export default function KidneyDiseasePrediction() {
     // state
     const [predictionModel, setPredictionModel] = useState<'linear' | 'logistic'>('linear');
     const [uploadedPatientData, setUploadedPatientData] = useState<any[]>([]);
-    const [diseasePredictions, setDiseasePredictions] = useState<boolean[]>([]);
+    const [diseasePredictions, setDiseasePredictions] = useState<number[]>([]);
     const [progressPercent, setProgressPercent] = useState<number>(0);
 
 
@@ -50,7 +49,7 @@ export default function KidneyDiseasePrediction() {
             setProgressPercent(0);
             handleShowProcessing('Processing', 'Initializing');
 
-            setDiseasePredictions(Array.from({ length: uploadedPatientData.length }, () => false));
+            setDiseasePredictions(Array.from({ length: uploadedPatientData.length }, () => 2));
             await KidneyDiseasePredictionService.deleteCkksKey();
             await KidneyDiseasePredictionService.deletePatientData();
 
@@ -115,7 +114,7 @@ export default function KidneyDiseasePrediction() {
                             const result = KidneyDiseasePredictionService.isKidneyDisease(predictions[j * zippedPatientData.chunkSize]);
                             setDiseasePredictions(prevResults => {
                                 const newResults = [...prevResults];
-                                newResults[startIndex + j] = result;
+                                newResults[startIndex + j] = Number(result);
                                 return newResults;
                             });
                             setProgressPercent(prev => prev + ((1 / totalChunkCount) * 45));
@@ -189,10 +188,6 @@ export default function KidneyDiseasePrediction() {
                     title={"환자 정보 CSV파일 업로드"}
                     setPatientsInfo={setUploadedPatientData}
                 />
-                <PredictModelSelector
-                    predictModel={predictionModel}
-                    setPredictModel={setPredictionModel}
-                />
             </ConfigComponent>
 
             <PredictingContatiner>
@@ -205,9 +200,9 @@ export default function KidneyDiseasePrediction() {
                 </StartPredictionButton>
             </PredictingContatiner>
 
-            <div style={{ width: 'calc(100% - 40px)', height: 'calc(100% - 160px - 30px - 20px)', padding: '10px 20px', display: 'flex', flexDirection: "column", alignItems: 'center' }}>
-                <PatientTable title={"환자 정보"} data={uploadedPatientData} result={diseasePredictions} />
-            </div>
+            <DisplayPatientData>
+                <PatientTable tableTitle={"환자 정보"} patientData={uploadedPatientData} diseasePredictions={diseasePredictions} />
+            </DisplayPatientData>
         </Wrapper>
     )
 }
@@ -224,7 +219,7 @@ const Wrapper = styled.div`
 `;
 
 const ConfigComponent = styled.div`
-    height: 20%;
+    height: 170px;
     width: 100%;
     display: flex;
     flex-direction: column;
@@ -233,9 +228,9 @@ const ConfigComponent = styled.div`
 `;
 
 const PredictingContatiner = styled.div`
-    height: calc(5% - 2%);
-    width: calc(100% - 4%);
-    padding: 1% 2%;
+    height: calc(100px - 70px);
+    width: calc(100% - 100px);
+    padding: 35px 50px;
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -243,15 +238,24 @@ const PredictingContatiner = styled.div`
 
 const ProgressBarField = styled.div`
     height: 100%;
-    width: 85%;
+    width: calc(100% - 240px);
 `;
 
 const StartPredictionButton = styled.button`
-    height: 100%;
-    width: 12.5%;
+    width: calc(200px - 4px);
+    margin-left: 40px;
     border: 2px solid #a2a2a2;
     border-radius: 5px;
-    font-size: 1.5vh;
+    font-size: 20px;
     font-weight: bold;
     cursor: pointer;
+`;
+
+const DisplayPatientData = styled.div`
+    height: calc(100% - 270px - 20px);
+    width: calc(100% - 40px);
+    padding: 10px 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
 `;

@@ -40,27 +40,39 @@ export default function PatientUploader({ setPatientsInfo, title }: PatientUploa
 
     return (
         <Wrapper>
-            <Title>{title}</Title>
-            <CsvUploader type="file" accept=".csv" onChange={handleUploadCSV} />
+            <Content>
+                <Title>{title}</Title>
+                <CsvUploader type="file" accept=".csv" onChange={handleUploadCSV} />
+            </Content>
         </Wrapper>
     );
 }
 
 const Wrapper = styled.div`
-    height: calc(70% - 2%);
-    width: calc(100% - 2%);
-    padding: 1%;
+    height: 100%;
+    width: 100%;
     display: flex;
     flex-direction: column;
-    justify-content: space-between;
     align-items: center;
+    user-select: none;
 `;
 
-const Title = styled.h1`
-    font-size: 3.5vh;
+const Content = styled.div`
+    height: calc(100% - 80px);
+    width: calc(100% - 40%);
+    padding: 50px 20%;
+    padding-bottom: 30px;
+`;
+
+const Title = styled.h3`
+    font-size: 30px;
+    font-weight: bold;
+    margin-bottom: 30px;
+    color: #3182F6; 
 `;
 
 const CsvUploader = styled.input`
-    margin-left: 9vw;
-    font-size: 1.5vh;
+    font-size: 20px;
+    color: black;
+    cursor: pointer;
 `;

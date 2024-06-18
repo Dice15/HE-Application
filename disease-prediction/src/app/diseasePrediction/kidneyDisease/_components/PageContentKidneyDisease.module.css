@@ -1,16 +1,16 @@
 .wrapper {
     position: relative;
-    height: 100%;
     width: 100%;
     display: flex;
     flex-direction: column;
     align-items: center;
+    user-select: none;
 }
 
 .introduce {
-    height: calc(345px - 125px);
-    width: calc(100% - 35%);
-    padding: 100px 17.5%;
+    height: calc(345px - 100px);
+    width: calc(100% - 40%);
+    padding: 75px 20%;
     padding-bottom: 25px;
 }
 
@@ -29,38 +29,41 @@
 }
 
 .model {
-    height: calc(100% - 345px - 75px);
-    width: calc(100% - 50%);
-    padding: 50px 25%;
+    height: calc(800px - 100px);
+    width: calc(100% - 40%);
+    padding: 75px 20%;
     padding-top: 25px;
     display: flex;
+    justify-content: center;
 }
 
 .model_left {
+    height: 600px;
+    width: 408px;
+    margin: 0px 5%;
     position: relative;
-    height: 100%;
-    width: 50%;
     display: flex;
     flex-direction: column;
     align-items: center;
 }
 
 .model_right {
+    height: 600px;
+    width: 408px;
+    margin: 0px 5%;
     position: relative;
-    height: 100%;
-    width: 50%;
     display: flex;
     flex-direction: column;
     align-items: center;
 }
 
 .model_image {
-    height: 85%;
-    width: auto;
+    height: 600px;
+    width: 408px;
 }
 
 .model_button {
-    height: calc(100% - 85% - 50px);
+    height: 100px;
     font-size: 30px;
     font-weight: bold;
     color: rgb(0, 0, 0);
@@ -69,7 +72,6 @@
     border-radius: 30px;
     background-color: transparent;
     cursor: pointer;
-    user-select: none;
 }
 
 .model_left_button:hover {

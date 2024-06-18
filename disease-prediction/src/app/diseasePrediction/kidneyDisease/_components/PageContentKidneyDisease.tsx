@@ -27,10 +27,12 @@ export default async function PageContentKidneyDisease() {
                         width={1047}
                         priority
                     />
-                    <Link href={{
-                        pathname: "/diseasePrediction/kidneyDisease/predict",
-                        query: { model: "fast" }
-                    }} prefetch={true}>
+                    <Link
+                        href={{
+                            pathname: "/diseasePrediction/kidneyDisease/predict",
+                            query: { model: "fast" }
+                        }}
+                        prefetch={true}>
                         <button className={[styles.model_button, styles.model_left_button].join(' ')}>
                             빠른 검사 시작
                         </button>
@@ -45,10 +47,12 @@ export default async function PageContentKidneyDisease() {
                         width={1047}
                         priority
                     />
-                    <Link href={{
-                        pathname: "/diseasePrediction/kidneyDisease/predict",
-                        query: { model: "accurate" } // 여기에 전달할 파라미터를 추가
-                    }} prefetch={true}>
+                    <Link
+                        href={{
+                            pathname: "/diseasePrediction/kidneyDisease/predict",
+                            query: { model: "accurate" } // 여기에 전달할 파라미터를 추가
+                        }}
+                        prefetch={true}>
                         <button className={[styles.model_button, styles.model_right_button].join(' ')}>
                             정밀 검사 시작
                         </button>
