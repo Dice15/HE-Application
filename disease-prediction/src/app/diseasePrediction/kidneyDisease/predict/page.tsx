@@ -1,6 +1,7 @@
 import KidneyDiseasePrediction from "./_components/KidneyDiseasePrediction";
 import PageTopKidneyDiseasePredict from "./_components/PageTopKidneyDiseasePredict";
 import styles from "./page.module.css";
+import { Suspense } from 'react';
 
 
 export default async function Page() {
@@ -10,7 +11,9 @@ export default async function Page() {
         <PageTopKidneyDiseasePredict />
       </div>
       <div className={styles.content}>
-        <KidneyDiseasePrediction />
+        <Suspense fallback={<div>Loading...</div>}>
+          <KidneyDiseasePrediction />
+        </Suspense>
       </div>
     </div>
   );
