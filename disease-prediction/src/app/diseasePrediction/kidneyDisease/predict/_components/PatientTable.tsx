@@ -1,8 +1,6 @@
 "use client"
 
-import { useCallback } from "react";
 import styled from "styled-components";
-import Swal from "sweetalert2";
 
 
 export interface PatientTableProps {
@@ -16,43 +14,47 @@ export default function PatientTable({ tableTitle, patientData, diseasePredictio
     // render
     return (
         <Wrapper>
-            <Title>
-                {patientData.length > 0 ? tableTitle : ""}
-            </Title>
-            <Content>
-                <Table>
-                    <thead>
-                        <tr>
-                            {(patientData.length > 0 ? Object.keys(patientData[0]) : [])
-                                .map((feature, index) => (
-                                    <th key={index} style={{ border: '1px solid black', padding: '8px', backgroundColor: '#f2f2f2' }}>
-                                        {feature}
-                                    </th>
+            {patientData.length > 0 &&
+                <>
+                    <Title>
+                        {tableTitle}
+                    </Title>
+                    <Content>
+                        <Table>
+                            <thead>
+                                <tr>
+                                    {Object.keys(patientData[0])
+                                        .map((feature, index) => (
+                                            <th key={index} style={{ border: '1px solid black', padding: '8px', backgroundColor: '#cbcbcb' }}>
+                                                {feature}
+                                            </th>
+                                        ))}
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {patientData.map((row, rowIndex) => (
+                                    <tr
+                                        key={rowIndex}
+                                        style={{
+                                            backgroundColor: `${(diseasePredictions[rowIndex] === undefined || diseasePredictions[rowIndex] === 2) ? '#f2f2f2' : diseasePredictions[rowIndex] ? '#FFA3A3' : '#89baff'}`
+                                        }}
+                                    >
+                                        {Object.keys(patientData[0])
+                                            .map((feature, colIndex) => (
+                                                <td key={colIndex} style={{ border: '1px solid black', padding: '8px' }}>
+                                                    {feature === 'classification'
+                                                        ? (diseasePredictions[rowIndex] === undefined || diseasePredictions[rowIndex] === 2) ? ' ' : diseasePredictions[rowIndex] ? '신장 질환' : '정상'
+                                                        : row[feature]
+                                                    }
+                                                </td>
+                                            ))}
+                                    </tr>
                                 ))}
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {patientData.map((row, rowIndex) => (
-                            <tr
-                                key={rowIndex}
-                                style={{
-                                    backgroundColor: `${(diseasePredictions[rowIndex] === undefined || diseasePredictions[rowIndex] === 2) ? '#f2f2f2' : diseasePredictions[rowIndex] ? '#FFA3A3' : '#89baff'}`
-                                }}
-                            >
-                                {(patientData.length > 0 ? Object.keys(patientData[0]) : [])
-                                    .map((feature, colIndex) => (
-                                        <td key={colIndex} style={{ border: '1px solid black', padding: '8px' }}>
-                                            {feature === 'classification'
-                                                ? (diseasePredictions[rowIndex] === undefined || diseasePredictions[rowIndex] === 2) ? ' ' : diseasePredictions[rowIndex] ? '신장 질환' : '정상'
-                                                : row[feature]
-                                            }
-                                        </td>
-                                    ))}
-                            </tr>
-                        ))}
-                    </tbody>
-                </Table>
-            </Content>
+                            </tbody>
+                        </Table>
+                    </Content>
+                </>
+            }
         </Wrapper>
     );
 }

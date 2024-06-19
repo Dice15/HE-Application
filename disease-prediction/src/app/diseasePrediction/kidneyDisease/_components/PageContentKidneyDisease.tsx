@@ -17,10 +17,10 @@ export default async function PageContentKidneyDisease() {
                     신장 질환 검사
                 </h3>
                 <h1 className={styles.description}>
-                    질병 예측,
+                    다양한 모델을 사용하여,
                 </h1>
                 <h1 className={styles.description}>
-                    다양한 모델을 사용하여
+                    질병 검사
                 </h1>
             </div>
 
