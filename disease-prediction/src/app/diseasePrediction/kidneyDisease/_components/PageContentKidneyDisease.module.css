@@ -63,21 +63,44 @@
 }
 
 .model_button {
-    height: 100px;
+    height: calc(100px - 30px);
+    width: 250px;
     font-size: 30px;
     font-weight: bold;
     color: rgb(0, 0, 0);
-    padding: 25px 25px;
+    margin-top: 30px;
+    padding: 15px 15px;
     border: 1px solid transparent;
-    border-radius: 30px;
+    border-radius: 35px;
     background-color: transparent;
     cursor: pointer;
 }
 
 .model_left_button:hover {
     color: #095ADD;
+    background-color: #dceaff;
 }
 
 .model_right_button:hover {
     color: #5F2BB3;
+    background-color: #ece0ff
+}
+
+.model_button_disabled {
+    height: calc(100px - 30px);
+    width: 320px;
+    font-size: 30px;
+    font-weight: bold;
+    color: rgb(107, 107, 107);
+    margin-top: 30px;
+    padding: 15px 15px;
+    border: 1px solid transparent;
+    border-radius: 35px;
+    background-color: transparent;
+    cursor: pointer;
+}
+
+.model_button_disabled:hover {
+    color: rgb(56, 56, 56);
+    background-color: rgb(220, 220, 220);
 }

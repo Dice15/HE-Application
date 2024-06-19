@@ -1,8 +1,15 @@
 import Link from "next/link";
 import styles from "./PageContentKidneyDisease.module.css";
 import Image from "next/image";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/pages/api/auth/[...nextauth]";
 
 export default async function PageContentKidneyDisease() {
+    // const
+    const isAuth = (await getServerSession(authOptions)) !== null;
+
+
+    // render
     return (
         <div className={styles.wrapper}>
             <div className={styles.introduce}>
@@ -32,10 +39,16 @@ export default async function PageContentKidneyDisease() {
                             pathname: "/diseasePrediction/kidneyDisease/predict",
                             query: { model: "fast" }
                         }}
-                        prefetch={true}>
-                        <button className={[styles.model_button, styles.model_left_button].join(' ')}>
-                            빠른 검사 시작
-                        </button>
+                        prefetch={true}
+                    >
+                        {isAuth === true
+                            ? <button className={[styles.model_button, styles.model_left_button].join(' ')}>
+                                빠른 검사 시작
+                            </button>
+                            : <button className={styles.model_button_disabled} disabled={true}>
+                                로그인 후 이용 가능
+                            </button>
+                        }
                     </Link>
                 </div>
                 <div className={styles.model_right}>
@@ -52,10 +65,16 @@ export default async function PageContentKidneyDisease() {
                             pathname: "/diseasePrediction/kidneyDisease/predict",
                             query: { model: "accurate" } // 여기에 전달할 파라미터를 추가
                         }}
-                        prefetch={true}>
-                        <button className={[styles.model_button, styles.model_right_button].join(' ')}>
-                            정밀 검사 시작
-                        </button>
+                        prefetch={true}
+                    >
+                        {isAuth === true
+                            ? <button className={[styles.model_button, styles.model_right_button].join(' ')} >
+                                정밀 검사 시작
+                            </button>
+                            : <button className={styles.model_button_disabled} disabled={true}>
+                                로그인 후 이용 가능
+                            </button>
+                        }
                     </Link>
                 </div>
             </div>

@@ -47,7 +47,7 @@ export default function KidneyDiseasePrediction() {
              * Initialize view table and database
              */
             setProgressPercent(0);
-            handleShowProcessing('Processing', 'Initializing');
+            handleShowProcessing('Processing', '초기화 중...');
 
             setDiseasePredictions(Array.from({ length: uploadedPatientData.length }, () => 2));
             await KidneyDiseasePredictionService.deleteCkksKey();
@@ -58,7 +58,7 @@ export default function KidneyDiseasePrediction() {
              * Create CKKS Seal
              */
             setProgressPercent(prev => prev + 5);
-            handleShowProcessing('Processing', 'Creating CkksSeal');
+            handleShowProcessing('Processing', '암호화 모듈 준비중...');
 
             const ckksSeal = await KidneyDiseasePredictionService.createCkksSeal(predictionModel)
                 .then(async (ckksSeal) => {
@@ -68,7 +68,7 @@ export default function KidneyDiseasePrediction() {
                     await Swal.fire({
                         icon: 'error',
                         title: 'Oops...',
-                        text: 'Failed to initializing CkksSeal.',
+                        text: '암호화 모듈(CkksSeal)을 생성하는데 실패했습니다.',
                         allowOutsideClick: false,
                     });
                     throw new Error('Failed to initializing CkksSeal.');
@@ -79,14 +79,14 @@ export default function KidneyDiseasePrediction() {
              * Upload CKKS Keys to the database
              */
             setProgressPercent(prev => prev + 5);
-            handleShowProcessing('Processing', 'Uploading Ckkskey');
+            handleShowProcessing('Processing', '암호화 모듈의 공개키 업로드 중...');
 
             await KidneyDiseasePredictionService.uploadCkksKey(ckksSeal)
                 .catch(async () => {
                     await Swal.fire({
                         icon: 'error',
                         title: 'Oops...',
-                        text: 'Failed to uploading CkksKey.',
+                        text: '암호화 모듈의 공개키를 업로드하는데 실패했습니다.',
                         allowOutsideClick: false,
                     });
                     throw new Error('Failed to uploading CkksKey.');
@@ -97,7 +97,7 @@ export default function KidneyDiseasePrediction() {
              * Start predicting kidney disease
              */
             setProgressPercent(prev => prev + 40);
-            handleShowProcessing('Processing', 'Predicting kidneydisease');
+            handleShowProcessing('Predicting', '환자의 신장 질환 검사 중...');
 
             const patientData = KidneyDiseasePredictionService.preprocessPatientData(JSON.parse(JSON.stringify(uploadedPatientData, null, 2)) as any[]);
             const zippedPatientData = ckksSeal.arrayZipper(patientData.rows);
@@ -124,7 +124,7 @@ export default function KidneyDiseasePrediction() {
                         await Swal.fire({
                             icon: 'error',
                             title: 'Oops...',
-                            text: 'Failed to predicting patient data.',
+                            text: '환자의 신장 질환 검사 중 오류가 발생했습니다.',
                             allowOutsideClick: false,
                         });
                         throw new Error('Failed to predicting patient data.');
@@ -170,7 +170,7 @@ export default function KidneyDiseasePrediction() {
                     Swal.fire({
                         icon: 'error',
                         title: 'Oops...',
-                        text: 'Invalid access. Redirecting to the home page.',
+                        text: '잘못된 접근 입니다. 홈 페이지로 이동합니다.',
                         allowOutsideClick: false,
                     }).then(() => {
                         router.replace('/');

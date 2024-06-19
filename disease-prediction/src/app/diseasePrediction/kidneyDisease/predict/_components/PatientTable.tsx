@@ -1,6 +1,9 @@
 "use client"
 
+import { useCallback } from "react";
 import styled from "styled-components";
+import Swal from "sweetalert2";
+
 
 export interface PatientTableProps {
     tableTitle: string;
@@ -8,7 +11,9 @@ export interface PatientTableProps {
     diseasePredictions: number[];
 }
 
+
 export default function PatientTable({ tableTitle, patientData, diseasePredictions }: PatientTableProps) {
+    // render
     return (
         <Wrapper>
             <Title>
@@ -18,7 +23,7 @@ export default function PatientTable({ tableTitle, patientData, diseasePredictio
                 <Table>
                     <thead>
                         <tr>
-                            {(patientData.length > 0 ? Object.keys(patientData[0]).filter((value => value !== 'classification')) : [])
+                            {(patientData.length > 0 ? Object.keys(patientData[0]) : [])
                                 .map((feature, index) => (
                                     <th key={index} style={{ border: '1px solid black', padding: '8px', backgroundColor: '#f2f2f2' }}>
                                         {feature}
@@ -34,10 +39,13 @@ export default function PatientTable({ tableTitle, patientData, diseasePredictio
                                     backgroundColor: `${(diseasePredictions[rowIndex] === undefined || diseasePredictions[rowIndex] === 2) ? '#f2f2f2' : diseasePredictions[rowIndex] ? '#FFA3A3' : '#89baff'}`
                                 }}
                             >
-                                {(patientData.length > 0 ? Object.keys(patientData[0]).filter((value => value !== 'classification')) : [])
+                                {(patientData.length > 0 ? Object.keys(patientData[0]) : [])
                                     .map((feature, colIndex) => (
                                         <td key={colIndex} style={{ border: '1px solid black', padding: '8px' }}>
-                                            {row[feature]}
+                                            {feature === 'classification'
+                                                ? (diseasePredictions[rowIndex] === undefined || diseasePredictions[rowIndex] === 2) ? ' ' : diseasePredictions[rowIndex] ? '신장 질환' : '정상'
+                                                : row[feature]
+                                            }
                                         </td>
                                     ))}
                             </tr>
