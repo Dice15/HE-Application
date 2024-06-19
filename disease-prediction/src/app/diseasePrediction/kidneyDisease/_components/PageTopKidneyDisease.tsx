@@ -27,7 +27,7 @@ export default async function PageTopKidneyDisease() {
                 </Link>
 
                 <div className={styles.manu_field}>
-                    <Link href={"/"} prefetch={true}>
+                    <Link href={"/introduce"} prefetch={true}>
                         <button className={styles.manu_button}>
                             소개
                         </button>
