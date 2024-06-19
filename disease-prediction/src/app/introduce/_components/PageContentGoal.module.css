@@ -1,0 +1,29 @@
+.wrapper {
+    position: relative;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    user-select: none;
+}
+
+.introduce {
+    height: calc(345px - 100px);
+    width: calc(100% - 40%);
+    padding: 75px 20%;
+    padding-bottom: 25px;
+}
+
+.title {
+    font-size: 30px;
+    font-weight: bold;
+    margin-bottom: 60px;
+    color: #3182F6;
+}
+
+.description {
+    font-size: 40px;
+    font-weight: bold;
+    margin-bottom: 25px;
+    color: black;
+}

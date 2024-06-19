@@ -16,3 +16,9 @@
   background: linear-gradient(180deg, white 0%, white 59px, rgba(255, 255, 255, 0) 100%);
   z-index: 10;
 }
+
+.content {
+  width: calc(100vw - (100vw - 100%));
+  padding-top: 80px;
+  margin-bottom: 50px;
+}
