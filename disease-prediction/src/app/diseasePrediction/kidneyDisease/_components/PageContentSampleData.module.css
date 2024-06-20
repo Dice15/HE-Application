@@ -28,6 +28,35 @@
     color: black;
 }
 
+.download {
+    height: 60px;
+    width: calc(100% - 40%);
+    margin-bottom: 15px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.download_link {
+    height: calc(60px - 32px);
+    width: 500px;
+    font-size: 30px;
+    font-weight: bold;
+    color: rgb(0, 0, 0);
+    padding: 15px 15px;
+    border: 1px solid #095ADD;
+    border-radius: 35px;
+    background-color: transparent;
+    cursor: pointer;
+    text-align: center;
+    text-decoration: none;
+}
+
+.download_link:hover {
+    color: #095ADD;
+    background-color: #dceaff;
+}
+
 .sample {
     height: calc(800px - 100px);
     width: calc(100% - 40%);

@@ -64,16 +64,23 @@
 
 .model_button {
     height: calc(100px - 30px);
-    width: 250px;
+    width: 300px;
     font-size: 30px;
     font-weight: bold;
     color: rgb(0, 0, 0);
     margin-top: 30px;
     padding: 15px 15px;
-    border: 1px solid transparent;
     border-radius: 35px;
     background-color: transparent;
     cursor: pointer;
+}
+
+.model_left_button {
+    border: 1px solid #095ADD;
+}
+
+.model_right_button {
+    border: 1px solid #5F2BB3;
 }
 
 .model_left_button:hover {
@@ -94,7 +101,7 @@
     color: rgb(107, 107, 107);
     margin-top: 30px;
     padding: 15px 15px;
-    border: 1px solid transparent;
+    border: 1px solid rgb(56, 56, 56);
     border-radius: 35px;
     background-color: transparent;
     cursor: pointer;

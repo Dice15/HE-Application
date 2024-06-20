@@ -180,13 +180,14 @@ export default function KidneyDiseasePrediction() {
         }
     }, [modelParams, router]);
 
+
     // render
     return (
         <Wrapper>
             <ConfigComponent>
                 <PatientUploader
                     title={"환자 정보 CSV파일 업로드"}
-                    setPatientsInfo={setUploadedPatientData}
+                    setPatientsData={setUploadedPatientData}
                 />
             </ConfigComponent>
 
@@ -219,7 +220,7 @@ const Wrapper = styled.div`
 `;
 
 const ConfigComponent = styled.div`
-    height: 170px;
+    height: 200px;
     width: 100%;
     display: flex;
     flex-direction: column;
@@ -252,7 +253,7 @@ const StartPredictionButton = styled.button`
 `;
 
 const DisplayPatientData = styled.div`
-    height: calc(100% - 270px - 20px);
+    height: calc(100% - 300px - 20px);
     width: calc(100% - 40px);
     padding: 10px 20px;
     display: flex;

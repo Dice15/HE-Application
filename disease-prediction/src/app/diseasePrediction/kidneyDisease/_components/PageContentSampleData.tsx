@@ -582,6 +582,12 @@ export default async function PageContentSampleData() {
                 </h1>
             </div>
 
+            <div className={styles.download}>
+                <a href="/api/sampleDataManager/sampleDataKidneyDisease" download="kidney_disease.csv" className={styles.download_link}>
+                    샘플 데이터 다운로드 (CSV)
+                </a>
+            </div>
+
             <div className={styles.sample}>
                 <table className={styles.sample_table}>
                     <thead>
