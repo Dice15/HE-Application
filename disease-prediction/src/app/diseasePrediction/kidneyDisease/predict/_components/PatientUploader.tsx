@@ -175,8 +175,8 @@ const DragField = styled.div`
 const DragOverlay = styled.div`
     position: absolute;
     top: 110px;
-    left: calc(20% + 170px);
-    width: calc(100% - 40% - 170px);
+    left: calc(20% + 178px);
+    width: calc(100% - 40% - 140px - 40px - 2px);
     height: 88px;
     background-color: rgba(0, 0, 0, 0.20);
     border: 1px solid transparent;
