@@ -34,7 +34,7 @@ export default async function PageTopKidneyDisease() {
                     </Link>
                     <Link href={"/diseasePrediction/kidneyDisease"} prefetch={true}>
                         <button className={styles.manu_button}>
-                            신장 질환 검사
+                            만성 신장 질환 검사
                         </button>
                     </Link>
                 </div>

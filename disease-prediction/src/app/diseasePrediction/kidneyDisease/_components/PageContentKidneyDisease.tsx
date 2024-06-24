@@ -14,7 +14,7 @@ export default async function PageContentKidneyDisease() {
         <div className={styles.wrapper}>
             <div className={styles.introduce}>
                 <h3 className={styles.title}>
-                    신장 질환 검사
+                    만성 신장 질환 검사
                 </h3>
                 <h1 className={styles.description}>
                     다양한 모델을 사용하여,
