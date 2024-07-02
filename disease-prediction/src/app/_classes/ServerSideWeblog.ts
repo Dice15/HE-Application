@@ -8,6 +8,7 @@ export default class ServerSideWeblog {
         const protocol = headers.get('x-forwarded-proto') || 'http';
         const originUrl = `${protocol}://${host}`;
         const connectionUrl = originUrl + url;
-        fetch(`${originUrl}/api/weblog/savelog?connectionUrl=${encodeURIComponent(connectionUrl)}`, { method: 'GET' });
+        const clientIp = (headers.get('x-forwarded-for') ?? '127.0.0.1').split(',')[0];
+        fetch(`${originUrl}/api/weblog/savelog?connectionUrl=${encodeURIComponent(connectionUrl)}&clientIp=${encodeURIComponent(clientIp)}`, { method: 'GET' });
     }
 }

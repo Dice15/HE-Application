@@ -13,16 +13,6 @@ export const config = {
 };
 
 
-function getClientIp(request: NextApiRequest): string {
-    const xForwardedFor = request.headers['x-forwarded-for'] as string | undefined;
-    if (xForwardedFor) {
-        const ips = xForwardedFor.split(',').map(ip => ip.trim());
-        return ips[0];
-    }
-    return request.socket.remoteAddress || 'unknown';
-}
-
-
 async function getGeoLocation(ip: string) {
     if (ip === 'unknown' || ip === '::1' || ip.startsWith('127.') || ip.startsWith('192.168.')) {
         return { city: 'Local', country: 'Local' };
@@ -60,9 +50,9 @@ function getKST(): string {
 
 
 export default async function handler(request: NextApiRequest, response: NextApiResponse) {
-    const connectionUrl = request.query.connectionUrl;
+    const { connectionUrl, clientIp } = request.query;
 
-    if (typeof connectionUrl !== 'string') {
+    if (typeof connectionUrl !== 'string' || typeof clientIp !== 'string') {
         console.error('Missing required query parameter.');
         response.status(400).end();
         return;
@@ -72,14 +62,13 @@ export default async function handler(request: NextApiRequest, response: NextApi
         case 'GET': {
             try {
                 const time = getKST();
-                const ip = getClientIp(request);
-                const geoLocation = await getGeoLocation(ip);
+                const geoLocation = await getGeoLocation(clientIp);
 
                 const db = await MongoDbProvider.connectDb(process.env.MONGODB_URI).then(() => MongoDbProvider.getDb());
                 const result = await db.collection('weblog').insertOne({
                     connectionTime: time,
                     connectionUrl: connectionUrl,
-                    clientIp: ip,
+                    clientIp: clientIp,
                     clientCity: geoLocation.city,
                     clientCountry: geoLocation.country
                 });
