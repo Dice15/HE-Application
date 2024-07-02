@@ -1,8 +1,5 @@
 import { NextApiRequest, NextApiResponse } from 'next';
-import { getServerSession } from 'next-auth';
-import { authOptions } from '../auth/[...nextauth]';
 import MongoDbProvider from '@/core/modules/database/MongoDbProvider';
-import { getToken } from 'next-auth/jwt';
 
 
 export const config = {
@@ -14,6 +11,31 @@ export const config = {
         }
     }
 };
+
+
+function getClientIp(request: NextApiRequest): string {
+    const xForwardedFor = request.headers['x-forwarded-for'] as string | undefined;
+    if (xForwardedFor) {
+        const ips = xForwardedFor.split(',').map(ip => ip.trim());
+        return ips[0];
+    }
+    return request.socket.remoteAddress || 'unknown';
+}
+
+
+async function getGeoLocation(ip: string) {
+    if (ip === 'unknown' || ip === '::1' || ip.startsWith('127.') || ip.startsWith('192.168.')) {
+        return { city: 'Local', country: 'Local' };
+    }
+
+    const response = await fetch(`http://ip-api.com/json/${ip}`);
+    if (!response.ok) {
+        console.error('Failed to fetch geo location');
+        return { city: 'Unknown', country: 'Unknown' };
+    }
+    const data = await response.json();
+    return { city: data.city, country: data.country };
+}
 
 
 function getKST(): string {
@@ -38,9 +60,9 @@ function getKST(): string {
 
 
 export default async function handler(request: NextApiRequest, response: NextApiResponse) {
-    const { requestUrl, ip, city, country } = request.query;
+    const connectionUrl = request.query.connectionUrl;
 
-    if (typeof requestUrl !== 'string' || typeof ip !== 'string' || typeof city !== 'string' || typeof country !== 'string') {
+    if (typeof connectionUrl !== 'string') {
         console.error('Missing required query parameter.');
         response.status(400).end();
         return;
@@ -49,13 +71,17 @@ export default async function handler(request: NextApiRequest, response: NextApi
     switch (request.method) {
         case 'GET': {
             try {
+                const time = getKST();
+                const ip = getClientIp(request);
+                const geoLocation = await getGeoLocation(ip);
+
                 const db = await MongoDbProvider.connectDb(process.env.MONGODB_URI).then(() => MongoDbProvider.getDb());
                 const result = await db.collection('weblog').insertOne({
-                    time: getKST(),
-                    requestUrl,
-                    ip,
-                    city,
-                    country
+                    connectionTime: time,
+                    connectionUrl: connectionUrl,
+                    clientIp: ip,
+                    clientCity: geoLocation.city,
+                    clientCountry: geoLocation.country
                 });
                 response.status(200).end();
             } catch (error) {

@@ -7,7 +7,7 @@
 ### Info
 - 개발 기간 : 2024.03 ~ 2024.06
 - SW 등록일 : 2024.06.24 (SW 국가 R&D 성과물 등록)
-- 핵심 기술 : TypeScript  / Next.js / CKKS (H.E) / Regression Analysis (M.L)
+- 핵심 기술 : <img src="https://img.shields.io/badge/Node%20SEAL-339933?style=flat-square&logo=node.js&logoColor=white"/> ![Next.js](https://img.shields.io/badge/Next.js-000000?style=flat-square&logo=next.js&logoColor=white) ![TypeScript](https://img.shields.io/badge/TypeScript-007ACC?style=flat-square&logo=typescript&logoColor=white) <img src="https://img.shields.io/badge/Scikit Learn-F7931E?style=flat-square&logo=scikitlearn&logoColor=white"/> <img src="https://img.shields.io/badge/Python-3776AB?style=flat-square&logo=python&logoColor=white"/>
 - 참여 인원 : 1명 (+피드백 : 김동우 교수)
 - 배포 주소 : [https://safe-diagnosis.vercel.app/](https://safe-diagnosis.vercel.app/)
 - GitHub : [https://github.com/Dice15/HE-Application](https://github.com/Dice15/HE-Application)

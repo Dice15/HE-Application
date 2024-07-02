@@ -14,7 +14,7 @@ export default async function PageTopIntroduce() {
     return (
         <div className={styles.wrapper}>
             <div className={styles.manu}>
-                <Link href={"/"} prefetch={true} style={{ textDecoration: "none" }}>
+                <Link href={"/"} style={{ textDecoration: "none" }}>
                     <div className={styles.logo_field}>
                         <div className={styles.logo}>
                             <Image src="/images/new_logo.png" alt="new_logo" fill priority />
@@ -27,12 +27,12 @@ export default async function PageTopIntroduce() {
                 </Link>
 
                 <div className={styles.manu_field}>
-                    <Link href={"/introduce"} prefetch={true}>
+                    <Link href={"/introduce"} >
                         <button className={styles.manu_button}>
                             소개
                         </button>
                     </Link>
-                    <Link href={"/diseasePrediction/kidneyDisease"} prefetch={true}>
+                    <Link href={"/diseasePrediction/kidneyDisease"} >
                         <button className={styles.manu_button}>
                             만성 신장 질환 검사
                         </button>
