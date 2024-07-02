@@ -5,15 +5,17 @@
 
 # 프로젝트 개요
 ### Info
-- 개발 기간 : 2024.03 ~ 2024.06
-- SW 등록일 : 2024.06.24 (SW 국가 R&D 성과물 등록)
-- 핵심 기술 : <img src="https://img.shields.io/badge/Node%20SEAL-339933?style=flat-square&logo=node.js&logoColor=white"/> ![Next.js](https://img.shields.io/badge/Next.js-000000?style=flat-square&logo=next.js&logoColor=white) ![TypeScript](https://img.shields.io/badge/TypeScript-007ACC?style=flat-square&logo=typescript&logoColor=white) <img src="https://img.shields.io/badge/Scikit Learn-F7931E?style=flat-square&logo=scikitlearn&logoColor=white"/> <img src="https://img.shields.io/badge/Python-3776AB?style=flat-square&logo=python&logoColor=white"/>
-- 참여 인원 : 1명 (+피드백 : 김동우 교수)
-- 배포 주소 : [https://safe-diagnosis.vercel.app/](https://safe-diagnosis.vercel.app/)
-- GitHub : [https://github.com/Dice15/HE-Application](https://github.com/Dice15/HE-Application)
+|||
+|-----|-----|
+|**개발 기간**|2024.03 ~ 2024.06|
+|**SW 등록일**|2024.06.24 (SW 국가 R&D 성과물 등록)|
+|**핵심 기술**|<img src="https://img.shields.io/badge/Node%20SEAL-339933?style=flat-square&logo=node.js&logoColor=white"/> ![Next.js](https://img.shields.io/badge/Next.js-000000?style=flat-square&logo=next.js&logoColor=white) ![TypeScript](https://img.shields.io/badge/TypeScript-007ACC?style=flat-square&logo=typescript&logoColor=white) <img src="https://img.shields.io/badge/Scikit Learn-F7931E?style=flat-square&logo=scikitlearn&logoColor=white"/> <img src="https://img.shields.io/badge/Python-3776AB?style=flat-square&logo=python&logoColor=white"/>|
+|**참여 인원**|1명 (+피드백 : 김동우 교수)|
+|**배포 주소**|[https://safe-diagnosis.vercel.app/](https://safe-diagnosis.vercel.app/)|
+|**GitHub**|[https://github.com/Dice15/HE-Application](https://github.com/Dice15/HE-Application)|
 
 ### Works
-- 동형암호 CKKS의 암호화, 복호화, 연산을 위한 모듈 개발
+- 동형암호 CKKS의 암호화, 복호화, 연산을 위한 TypeScript 모듈 개발
 - CKKS 암호문의 rescale, relinearize, modulus reduction 자동화
 - SIMD 연산을 위해 하나의 암호문에 여러 환자 데이터를 저장하는 로직 구현
 - 만성 신장 질환을 예측하는 linear/logistic 회귀 모델 학습 및 CKKS 암호화
@@ -28,10 +30,10 @@
 - [CKKS Builder](src/core/modules/homomorphicEncryption/CKKSSeal.ts)
 
 ### 클라이언트
-- [홈 페이지](src/app/)
-- [소개 페이지](src/app/)
-- [질병 검사 페이지](src/app/)
-- [질병 검사 진행 페이지](src/app/)
+- [홈 페이지](src/app)
+- [소개 페이지](src/app/introduce)
+- [질병 검사 페이지](src/app/diseasePrediction/kidneyDisease)
+- [질병 검사 진행 페이지](src/app/diseasePrediction/kidneyDisease/predict)
 
 ### 서버
 - [REST API](src/pages/api)
