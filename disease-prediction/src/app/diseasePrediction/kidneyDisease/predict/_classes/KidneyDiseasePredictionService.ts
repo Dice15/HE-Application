@@ -54,7 +54,7 @@ export class KidneyDiseasePredictionService {
         const saveChunks = async (chunks: Uint8Array[], keyType: "publicKey" | "relinKeys" | "galoisKeys") => {
             for (let i = 0; i < chunks.length; i++) {
                 const base64Chunk = uint8ArrayToBase64(chunks[i]);
-                axios.post('/api/ckksKeyManager/ckksKeyManagement', {
+                await axios.post('/api/ckksKeyManager/ckksKeyManagement', {
                     chunk: base64Chunk,
                     index: i,
                     keyType: keyType
@@ -231,7 +231,7 @@ export class KidneyDiseasePredictionService {
         const saveChunks = async (chunks: Uint8Array[]): Promise<void> => {
             for (let i = 0; i < chunks.length; i++) {
                 const base64Chunk = uint8ArrayToBase64(chunks[i]);
-                axios.post('/api/patientDataManager/patientDataManagement', {
+                await axios.post('/api/patientDataManager/patientDataManagement', {
                     chunk: base64Chunk,
                     index: i,
                     dataName: dataName
