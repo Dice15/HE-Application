@@ -37,7 +37,7 @@ export default class KidneyDiseasePredictionController {
                     buildStartTime = Date.now(); // CKKS Seal 빌드 시작 시간
 
                     const ckksSeal = await NodeSealProvider.getSeal().then(async (nodeSeal) => {
-                        return new CKKSSealBuilder(nodeSeal, nodeSeal.SecurityLevel.tc128, Math.pow(2, 14), [47, 47, 47, 60], Math.pow(2, 47))
+                        return new CKKSSealBuilder(nodeSeal, nodeSeal.SecurityLevel.tc128, Math.pow(2, 13), [50, 47, 50], Math.pow(2, 47))
                             .loadPublicKey(await CkksKeyManagementService.loadCkksKey(session.user.id, "publicKey"))
                             .loadRelinKeys(await CkksKeyManagementService.loadCkksKey(session.user.id, "relinKeys"))
                             .loadGaloisKeys(await CkksKeyManagementService.loadCkksKey(session.user.id, "galoisKeys"))
@@ -74,7 +74,7 @@ export default class KidneyDiseasePredictionController {
                     buildStartTime = Date.now(); // CKKS Seal 빌드 시작 시간
 
                     const ckksSeal = await NodeSealProvider.getSeal().then(async (nodeSeal) => {
-                        return new CKKSSealBuilder(nodeSeal, nodeSeal.SecurityLevel.tc128, Math.pow(2, 14), [47, 47, 47, 47, 47, 47, 47, 47, 60], Math.pow(2, 47))
+                        return new CKKSSealBuilder(nodeSeal, nodeSeal.SecurityLevel.tc128, Math.pow(2, 14), [50, 47, 47, 47, 47, 47, 47, 47, 50], Math.pow(2, 47))
                             .loadPublicKey(await CkksKeyManagementService.loadCkksKey(session.user.id, "publicKey"))
                             .loadRelinKeys(await CkksKeyManagementService.loadCkksKey(session.user.id, "relinKeys"))
                             .loadGaloisKeys(await CkksKeyManagementService.loadCkksKey(session.user.id, "galoisKeys"))

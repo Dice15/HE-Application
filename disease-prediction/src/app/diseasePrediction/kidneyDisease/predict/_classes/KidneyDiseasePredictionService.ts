@@ -11,8 +11,8 @@ export class KidneyDiseasePredictionService {
         return NodeSealProvider.getSeal()
             .then((nodeSeal) => {
                 return (predictModel === "linear"
-                    ? new CKKSSealBuilder(nodeSeal, nodeSeal.SecurityLevel.tc128, Math.pow(2, 14), [47, 47, 47, 60], Math.pow(2, 47))
-                    : new CKKSSealBuilder(nodeSeal, nodeSeal.SecurityLevel.tc128, Math.pow(2, 14), [47, 47, 47, 47, 47, 47, 47, 47, 60], Math.pow(2, 47))
+                    ? new CKKSSealBuilder(nodeSeal, nodeSeal.SecurityLevel.tc128, Math.pow(2, 13), [50, 47, 50], Math.pow(2, 47))
+                    : new CKKSSealBuilder(nodeSeal, nodeSeal.SecurityLevel.tc128, Math.pow(2, 14), [50, 47, 47, 47, 47, 47, 47, 47, 50], Math.pow(2, 47))
                 )
                     .createSecretKey()
                     .createPublicKey()
@@ -52,14 +52,16 @@ export class KidneyDiseasePredictionService {
         }
 
         const saveChunks = async (chunks: Uint8Array[], keyType: "publicKey" | "relinKeys" | "galoisKeys") => {
-            for (let i = 0; i < chunks.length; i++) {
-                const base64Chunk = uint8ArrayToBase64(chunks[i]);
-                axios.post('/api/ckksKeyManager/ckksKeyManagement', {
+            const promises = chunks.map((chunk, i) => {
+                const base64Chunk = uint8ArrayToBase64(chunk);
+                return axios.post('/api/ckksKeyManager/ckksKeyManagement', {
                     chunk: base64Chunk,
                     index: i,
                     keyType: keyType
                 });
-            }
+            });
+
+            await Promise.all(promises);
         }
 
         return Promise.all(
