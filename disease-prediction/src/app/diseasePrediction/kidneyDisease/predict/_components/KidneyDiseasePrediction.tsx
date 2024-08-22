@@ -45,6 +45,11 @@ export default function KidneyDiseasePrediction() {
     }, []);
 
 
+    const handleCloseAlert = useCallback((): void => {
+        Swal.close();
+    }, []);
+
+
     const handleStartPredict = useCallback(async () => {
         const startTime = Date.now();
 
@@ -52,6 +57,7 @@ export default function KidneyDiseasePrediction() {
             /**
              * Initialize view table and database
              */
+            handleCloseAlert();
             setProgressPercent(0);
             handleShowProcessing('Processing', '초기화 중...');
 
@@ -63,6 +69,7 @@ export default function KidneyDiseasePrediction() {
             /**
              * Create CKKS Seal
              */
+            handleCloseAlert();
             setProgressPercent(prev => prev + 5);
             handleShowProcessing('Processing', '암호화 모듈 준비중...');
 
@@ -84,6 +91,7 @@ export default function KidneyDiseasePrediction() {
             /**
              * Upload CKKS Keys to the database
              */
+            handleCloseAlert();
             setProgressPercent(prev => prev + 5);
             handleShowProcessing('Processing', '암호화 모듈의 공개키 업로드 중...');
 
@@ -102,6 +110,7 @@ export default function KidneyDiseasePrediction() {
             /**
              * Start predicting kidney disease
              */
+            handleCloseAlert();
             setProgressPercent(prev => prev + 40);
             handleShowProcessing('Predicting', '환자의 신장 질환 검사 중...');
 
@@ -141,8 +150,15 @@ export default function KidneyDiseasePrediction() {
                 )
             )
 
-            await KidneyDiseasePredictionService.deletePatientData();
             ckksSeal.delete();
+            await KidneyDiseasePredictionService.deleteCkksKey();
+            await KidneyDiseasePredictionService.deletePatientData();
+
+            handleCloseAlert();
+            setProgressPercent(100);
+            const endTime = Date.now();
+            const durationInSeconds = ((endTime - startTime) / 1000).toFixed(2);
+            handleShowCompleted('Completed', `검사가 완료되었습니다. (소요 시간: ${durationInSeconds}초)`);
         }
         catch (error) {
             if (error instanceof Error) {
@@ -151,19 +167,7 @@ export default function KidneyDiseasePrediction() {
                 throw new Error('An unknown error occurred while predicting processing');
             }
         }
-        finally {
-            /**
-             * Finalize the process
-             */
-            await KidneyDiseasePredictionService.deleteCkksKey();
-            setProgressPercent(100);
-
-            const endTime = Date.now();
-            const durationInSeconds = ((endTime - startTime) / 1000).toFixed(2);
-            handleShowCompleted('Completed', `검사가 완료되었습니다. (소요 시간: ${durationInSeconds}초)`);
-
-        }
-    }, [handleShowCompleted, handleShowProcessing, predictionModel, uploadedPatientData]);
+    }, [handleCloseAlert, handleShowCompleted, handleShowProcessing, predictionModel, uploadedPatientData]);
 
 
     // effect
