@@ -24,8 +24,8 @@ export default function KidneyDiseasePrediction() {
 
 
     // handler
-    const handleShowProcessing = useCallback((title: string, text: string): void => {
-        Swal.fire({
+    const handleShowProcessing = useCallback((title: string, text: string) => {
+        return Swal.fire({
             title: title,
             text: text,
             allowOutsideClick: false,
@@ -36,8 +36,8 @@ export default function KidneyDiseasePrediction() {
     }, []);
 
 
-    const handleShowCompleted = useCallback((title: string, text: string): void => {
-        Swal.fire({
+    const handleShowCompleted = useCallback((title: string, text: string) => {
+        return Swal.fire({
             title: title,
             text: text,
             allowOutsideClick: false,
@@ -45,13 +45,14 @@ export default function KidneyDiseasePrediction() {
     }, []);
 
 
-    const handleCloseAlert = useCallback((): void => {
-        Swal.close();
+    const handleCloseAlert = useCallback(() => {
+        return Swal.close();
     }, []);
 
 
     const handleStartPredict = useCallback(async () => {
         const startTime = Date.now();
+        setDiseasePredictions([]);
 
         try {
             /**
@@ -61,7 +62,7 @@ export default function KidneyDiseasePrediction() {
             setProgressPercent(0);
             handleShowProcessing('Processing', '초기화 중...');
 
-            setDiseasePredictions(Array.from({ length: uploadedPatientData.length }, () => 2));
+            const result = Array.from({ length: uploadedPatientData.length }, () => 2);
             await KidneyDiseasePredictionService.deleteCkksKey();
             await KidneyDiseasePredictionService.deletePatientData();
 
@@ -129,12 +130,8 @@ export default function KidneyDiseasePrediction() {
                             const startIndex = sliceCount * i;
 
                             for (let j = 0; j < sliceCount; j++) {
-                                const result = KidneyDiseasePredictionService.isKidneyDisease(predictions[j * zippedPatientData.chunkSize]);
-                                setDiseasePredictions(prevResults => {
-                                    const newResults = [...prevResults];
-                                    newResults[startIndex + j] = Number(result);
-                                    return newResults;
-                                });
+                                const isDisease = KidneyDiseasePredictionService.isKidneyDisease(predictions[j * zippedPatientData.chunkSize]);
+                                result[startIndex + j] = Number(isDisease);
                                 setProgressPercent(prev => prev + ((1 / totalChunkCount) * 45));
                             }
                         })
@@ -158,7 +155,9 @@ export default function KidneyDiseasePrediction() {
             setProgressPercent(100);
             const endTime = Date.now();
             const durationInSeconds = ((endTime - startTime) / 1000).toFixed(2);
-            handleShowCompleted('Completed', `검사가 완료되었습니다. (소요 시간: ${durationInSeconds}초)`);
+            handleShowCompleted('Completed', `검사가 완료되었습니다. (소요 시간: ${durationInSeconds}초)`).then(() => {
+                setDiseasePredictions(result);
+            });
         }
         catch (error) {
             if (error instanceof Error) {
