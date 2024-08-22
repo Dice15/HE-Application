@@ -384,8 +384,11 @@ export class CKKSSeal {
         this.cipherParamsMatching(cipher1, cipher2);
         this._evaluator.multiply(cipher1, cipher2, cipher1);
         this._evaluator.relinearize(cipher1, this._relinKeys, cipher1);
-        this._evaluator.rescaleToNext(cipher1, cipher1);
-        cipher1.setScale(this._scale);
+
+        if (cipher1.coeffModulusSize > 1) {
+            this._evaluator.rescaleToNext(cipher1, cipher1);
+            cipher1.setScale(this._scale);
+        }
 
         cipher2.delete();
 
@@ -399,8 +402,11 @@ export class CKKSSeal {
         this.plainParamsMatching(cipher, plain);
         this._evaluator.multiplyPlain(cipher, plain, cipher);
         this._evaluator.relinearize(cipher, this._relinKeys, cipher);
-        this._evaluator.rescaleToNext(cipher, cipher);
-        cipher.setScale(this._scale);
+
+        if (cipher.coeffModulusSize > 1) {
+            this._evaluator.rescaleToNext(cipher, cipher);
+            cipher.setScale(this._scale);
+        }
 
         plain.delete();
 
