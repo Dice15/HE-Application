@@ -9,6 +9,7 @@ import { Session } from "next-auth";
 
 
 interface IKidneyDiseasePredictionControllerParams {
+    dataName: string | undefined;
     featureSize: string | undefined;
     predictModel: ("linear" | "logistic") | undefined;
 }
@@ -20,10 +21,10 @@ export default class KidneyDiseasePredictionController {
     public static async handlePredictKidneyDisease(request: NextApiRequest, response: NextApiResponse, session: Session): Promise<void> {
         try {
             const startTime = Date.now(); // 전체 처리 시작 시간
-            const { featureSize, predictModel } = request.body as IKidneyDiseasePredictionControllerParams;
+            const { dataName, featureSize, predictModel } = request.body as IKidneyDiseasePredictionControllerParams;
 
 
-            if (featureSize === undefined || predictModel === undefined) {
+            if (dataName === undefined || featureSize === undefined || predictModel === undefined) {
                 response.status(400).json({ msg: "Missing required body data." });
                 return;
             }
@@ -35,17 +36,11 @@ export default class KidneyDiseasePredictionController {
                     console.log("Start building CKKS seal for linear model");
                     buildStartTime = Date.now(); // CKKS Seal 빌드 시작 시간
 
-                    const [publicKey, relinKeys, galoisKeys] = await Promise.all([
-                        CkksKeyManagementService.loadCkksKey(session.user.id, "publicKey"),
-                        CkksKeyManagementService.loadCkksKey(session.user.id, "relinKeys"),
-                        CkksKeyManagementService.loadCkksKey(session.user.id, "galoisKeys")
-                    ])
-
                     const ckksSeal = await NodeSealProvider.getSeal().then(async (nodeSeal) => {
                         return new CKKSSealBuilder(nodeSeal, nodeSeal.SecurityLevel.tc128, Math.pow(2, 14), [47, 47, 47, 60], Math.pow(2, 47))
-                            .loadPublicKey(publicKey)
-                            .loadRelinKeys(relinKeys)
-                            .loadGaloisKeys(galoisKeys)
+                            .loadPublicKey(await CkksKeyManagementService.loadCkksKey(session.user.id, "publicKey"))
+                            .loadRelinKeys(await CkksKeyManagementService.loadCkksKey(session.user.id, "relinKeys"))
+                            .loadGaloisKeys(await CkksKeyManagementService.loadCkksKey(session.user.id, "galoisKeys"))
                             .build();
                     });
 
@@ -57,7 +52,7 @@ export default class KidneyDiseasePredictionController {
 
                     const prediction = FastKidneyDiseasePredictionService.predictKidneyDisease(
                         ckksSeal,
-                        ckksSeal.deserializeCipherText(await PatientDataManagementService.loadPatientData(session.user.id)),
+                        ckksSeal.deserializeCipherText(await PatientDataManagementService.loadPatientData(session.user.id, dataName)),
                         parseInt(featureSize)
                     );
 
@@ -78,17 +73,11 @@ export default class KidneyDiseasePredictionController {
                     console.log("Start building CKKS seal for logistic model");
                     buildStartTime = Date.now(); // CKKS Seal 빌드 시작 시간
 
-                    const [publicKey, relinKeys, galoisKeys] = await Promise.all([
-                        CkksKeyManagementService.loadCkksKey(session.user.id, "publicKey"),
-                        CkksKeyManagementService.loadCkksKey(session.user.id, "relinKeys"),
-                        CkksKeyManagementService.loadCkksKey(session.user.id, "galoisKeys")
-                    ])
-
                     const ckksSeal = await NodeSealProvider.getSeal().then(async (nodeSeal) => {
                         return new CKKSSealBuilder(nodeSeal, nodeSeal.SecurityLevel.tc128, Math.pow(2, 14), [47, 47, 47, 47, 47, 47, 47, 47, 60], Math.pow(2, 47))
-                            .loadPublicKey(publicKey)
-                            .loadRelinKeys(relinKeys)
-                            .loadGaloisKeys(galoisKeys)
+                            .loadPublicKey(await CkksKeyManagementService.loadCkksKey(session.user.id, "publicKey"))
+                            .loadRelinKeys(await CkksKeyManagementService.loadCkksKey(session.user.id, "relinKeys"))
+                            .loadGaloisKeys(await CkksKeyManagementService.loadCkksKey(session.user.id, "galoisKeys"))
                             .build();
                     });
 
@@ -100,7 +89,7 @@ export default class KidneyDiseasePredictionController {
 
                     const prediction = AccurateKidneyDiseasePredictionService.predictKidneyDisease(
                         ckksSeal,
-                        ckksSeal.deserializeCipherText(await PatientDataManagementService.loadPatientData(session.user.id)),
+                        ckksSeal.deserializeCipherText(await PatientDataManagementService.loadPatientData(session.user.id, dataName)),
                         parseInt(featureSize)
                     );
 

@@ -6,6 +6,7 @@ import { Encryptor } from 'node-seal/implementation/encryptor';
 import { Evaluator } from 'node-seal/implementation/evaluator';
 import { GaloisKeys } from 'node-seal/implementation/galois-keys';
 import { KeyGenerator } from 'node-seal/implementation/key-generator';
+import { PlainText } from 'node-seal/implementation/plain-text';
 import { PublicKey } from 'node-seal/implementation/public-key';
 import { RelinKeys } from 'node-seal/implementation/relin-keys';
 import { SEALLibrary } from 'node-seal/implementation/seal';
@@ -242,21 +243,44 @@ export class CKKSSeal {
         return this._encoder.slotCount;
     }
 
+    public encode(array: number[]): PlainText {
+        const plainText = this._seal.PlainText();
+        this._encoder.encode(Float64Array.from(array), this._scale, plainText);
+        return plainText;
+    }
+
+    public decode(plainText: PlainText): number[] {
+        const decoded = Array.from(this._encoder.decode(plainText));
+        return decoded;
+    }
+
     public encrypt(array: number[]): CipherText {
         const plainText = this._seal.PlainText();
         const cipherText = this._seal.CipherText();
+
         this._encoder.encode(Float64Array.from(array), this._scale, plainText);
         this._encryptor.encrypt(plainText, cipherText);
+
         plainText.delete();
+
+        return cipherText;
+    }
+
+    public encryptPlain(plainText: PlainText): CipherText {
+        const cipherText = this._seal.CipherText();
+        this._encryptor.encrypt(plainText, cipherText);
         return cipherText;
     }
 
     public decrypt(cipherText: CipherText): number[] {
         if (this._decryptor === null) throw new Error("Decryptor is null");
         const plainText = this._seal.PlainText();
+
         this._decryptor.decrypt(cipherText, plainText);
         const decoded = Array.from(this._encoder.decode(plainText));
+
         plainText.delete();
+
         return decoded;
     }
 
@@ -288,56 +312,99 @@ export class CKKSSeal {
         }
     }
 
-    private parameterMatching(cipherText1: CipherText, cipherText2: CipherText) {
-        const cipher1 = cipherText1.clone();
-        const cipher2 = cipherText2.clone();
-        const paramsCmp = cipher1.coeffModulusSize - cipher2.coeffModulusSize;
+    private cipherParamsMatching(cipherText1: CipherText, cipherText2: CipherText): void {
+        const paramsCmp = cipherText1.coeffModulusSize - cipherText2.coeffModulusSize;
 
-        if (paramsCmp === 0) {
-            return [cipher1, cipher2];
-        }
-        else {
-            const switchedCipherText = this._seal.CipherText();
-
+        if (paramsCmp !== 0) {
             if (paramsCmp > 0) {
-                this._evaluator.cipherModSwitchTo(cipher1, cipher2.parmsId, switchedCipherText);
-                return [switchedCipherText, cipher2];
+                this._evaluator.cipherModSwitchTo(cipherText1, cipherText2.parmsId, cipherText1);
             }
             else {
-                this._evaluator.cipherModSwitchTo(cipher2, cipher1.parmsId, switchedCipherText);
-                return [cipher1, switchedCipherText];
+                this._evaluator.cipherModSwitchTo(cipherText2, cipherText1.parmsId, cipherText2);
             }
         }
+    }
+
+    private plainParamsMatching(cipherText: CipherText, plainText: PlainText): void {
+        this._evaluator.plainModSwitchTo(plainText, cipherText.parmsId, plainText);
     }
 
     public add(cipherText1: CipherText, cipherText2: CipherText): CipherText {
-        const [paramsMatchedCipher1, paramsMatchedCipher2] = this.parameterMatching(cipherText1, cipherText2);
-        const result = this._seal.CipherText();
-        this._evaluator.add(paramsMatchedCipher1, paramsMatchedCipher2, result);
-        paramsMatchedCipher1.delete();
-        paramsMatchedCipher2.delete();
-        return result;
+        const cipher1 = cipherText1.clone();
+        const cipher2 = cipherText2.clone();
+
+        this.cipherParamsMatching(cipher1, cipher2);
+        this._evaluator.add(cipher1, cipher2, cipher1);
+
+        cipher2.delete();
+
+        return cipher1;
     }
 
-    public subtract(cipherText1: CipherText, cipherText2: CipherText): CipherText {
-        const [paramsMatchedCipher1, paramsMatchedCipher2] = this.parameterMatching(cipherText1, cipherText2);
-        const result = this._seal.CipherText();
-        this._evaluator.sub(paramsMatchedCipher1, paramsMatchedCipher2, result);
-        paramsMatchedCipher1.delete();
-        paramsMatchedCipher2.delete();
-        return result;
+    public addPlain(cipherText: CipherText, plainText: PlainText): CipherText {
+        const cipher = cipherText.clone();
+        const plain = plainText.clone();
+
+        this.plainParamsMatching(cipher, plain);
+        this._evaluator.addPlain(cipher, plain, cipher);
+
+        plain.delete();
+
+        return cipher;
+    }
+
+    public sub(cipherText1: CipherText, cipherText2: CipherText): CipherText {
+        const cipher1 = cipherText1.clone();
+        const cipher2 = cipherText2.clone();
+
+        this.cipherParamsMatching(cipher1, cipher2);
+        this._evaluator.sub(cipher1, cipher2, cipher1);
+
+        cipher2.delete();
+
+        return cipher1;
+    }
+
+    public subPlain(cipherText: CipherText, plainText: PlainText): CipherText {
+        const cipher = cipherText.clone();
+        const plain = plainText.clone();
+
+        this.plainParamsMatching(cipher, plain);
+        this._evaluator.subPlain(cipher, plain, cipher);
+
+        plain.delete();
+
+        return cipher;
     }
 
     public multiply(cipherText1: CipherText, cipherText2: CipherText): CipherText {
-        const [paramsMatchedCipher1, paramsMatchedCipher2] = this.parameterMatching(cipherText1, cipherText2);
-        const result = this._seal.CipherText();
-        this._evaluator.multiply(paramsMatchedCipher1, paramsMatchedCipher2, result);
-        this._evaluator.relinearize(result, this._relinKeys, result);
-        this._evaluator.rescaleToNext(result, result);
-        result.setScale(this._scale);
-        paramsMatchedCipher1.delete();
-        paramsMatchedCipher2.delete();
-        return result;
+        const cipher1 = cipherText1.clone();
+        const cipher2 = cipherText2.clone();
+
+        this.cipherParamsMatching(cipher1, cipher2);
+        this._evaluator.multiply(cipher1, cipher2, cipher1);
+        this._evaluator.relinearize(cipher1, this._relinKeys, cipher1);
+        this._evaluator.rescaleToNext(cipher1, cipher1);
+        cipher1.setScale(this._scale);
+
+        cipher2.delete();
+
+        return cipher1;
+    }
+
+    public multiplyPlain(cipherText: CipherText, plainText: PlainText): CipherText {
+        const cipher = cipherText.clone();
+        const plain = plainText.clone();
+
+        this.plainParamsMatching(cipher, plain);
+        this._evaluator.multiplyPlain(cipher, plain, cipher);
+        this._evaluator.relinearize(cipher, this._relinKeys, cipher);
+        this._evaluator.rescaleToNext(cipher, cipher);
+        cipher.setScale(this._scale);
+
+        plain.delete();
+
+        return cipher;
     }
 
     public negate(cipherText: CipherText): CipherText {

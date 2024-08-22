@@ -208,7 +208,7 @@ export class KidneyDiseasePredictionService {
     };
 
 
-    public static async uploadPatientData(ckksSeal: CKKSSeal, patientData: any[]): Promise<void> {
+    public static async uploadPatientData(ckksSeal: CKKSSeal, patientData: any[], dataName: string): Promise<void> {
         const CHUNK_SIZE_MB = 1;
         const CHUNK_SIZE_BYTES = CHUNK_SIZE_MB * 1024 * 1024;
 
@@ -231,9 +231,10 @@ export class KidneyDiseasePredictionService {
         const saveChunks = async (chunks: Uint8Array[]): Promise<void> => {
             for (let i = 0; i < chunks.length; i++) {
                 const base64Chunk = uint8ArrayToBase64(chunks[i]);
-                await axios.post('/api/patientDataManager/patientDataManagement', {
+                axios.post('/api/patientDataManager/patientDataManagement', {
                     chunk: base64Chunk,
                     index: i,
+                    dataName: dataName
                 });
             }
         }
@@ -265,7 +266,7 @@ export class KidneyDiseasePredictionService {
     }
 
 
-    public static async predictDisease(ckksSeal: CKKSSeal, chunkSize: number, predictModel: "linear" | "logistic"): Promise<number[]> {
+    public static async predictDisease(ckksSeal: CKKSSeal, dataName: string, chunkSize: number, predictModel: "linear" | "logistic"): Promise<number[]> {
         const base64ToUint8Array = (base64: string): Uint8Array => {
             const binaryString = atob(base64);
             const length = binaryString.length;
@@ -278,6 +279,7 @@ export class KidneyDiseasePredictionService {
 
         return axios.post('/api/diseasePrediction/kidneyDiseasePrediction',
             {
+                dataName: dataName,
                 featureSize: chunkSize,
                 predictModel: predictModel
             })
