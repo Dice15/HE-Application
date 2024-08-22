@@ -52,14 +52,16 @@ export class KidneyDiseasePredictionService {
         }
 
         const saveChunks = async (chunks: Uint8Array[], keyType: "publicKey" | "relinKeys" | "galoisKeys") => {
-            for (let i = 0; i < chunks.length; i++) {
-                const base64Chunk = uint8ArrayToBase64(chunks[i]);
-                axios.post('/api/ckksKeyManager/ckksKeyManagement', {
+            const promises = chunks.map((chunk, i) => {
+                const base64Chunk = uint8ArrayToBase64(chunk);
+                return axios.post('/api/ckksKeyManager/ckksKeyManagement', {
                     chunk: base64Chunk,
                     index: i,
                     keyType: keyType
                 });
-            }
+            });
+
+            await Promise.all(promises);
         }
 
         return Promise.all(
