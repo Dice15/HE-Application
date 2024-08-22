@@ -50,6 +50,9 @@ export class CKKSSealBuilder {
                 this._publicKey = seal.PublicKey();
                 this._relinKeys = seal.RelinKeys();
                 this._galoisKeys = seal.GaloisKeys();
+
+                coeffModulus.delete();
+                contextParms.delete();
             }
         }
     }
@@ -98,6 +101,8 @@ export class CKKSSealBuilder {
             const decryptor = this._secretKey ? this._seal.Decryptor(this._context, this._secretKey) : null;
             const evaluator = this._seal.Evaluator(this._context);
             const encoder = this._seal.CKKSEncoder(this._context);
+            this._keyGenerator.delete();
+
             return new CKKSSeal(this._seal, this._scale, this._context, encoder, this._publicKey, this._relinKeys, this._galoisKeys, encryptor, decryptor, evaluator);
         }
         catch (error) {
@@ -145,6 +150,22 @@ export class CKKSSeal {
         this._encryptor = encryptor;
         this._decryptor = decryptor;
         this._evaluator = evaluator;
+    }
+
+    public delete(): void {
+        try {
+            this._context.delete();
+            this._encoder.delete();
+            this._publicKey.delete();
+            this._relinKeys.delete();
+            this._galoisKeys.delete();
+            this._encryptor.delete();
+            this._decryptor?.delete();
+            this._evaluator.delete();
+        }
+        catch (error) {
+            throw new Error(error instanceof Error ? error.message : String(error));
+        }
     }
 
     public serializePublicKey(): Uint8Array {

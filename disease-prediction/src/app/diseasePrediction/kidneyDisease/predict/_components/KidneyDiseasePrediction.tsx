@@ -99,6 +99,7 @@ export default function KidneyDiseasePrediction() {
             setProgressPercent(prev => prev + 40);
             handleShowProcessing('Predicting', '환자의 신장 질환 검사 중...');
 
+
             const patientData = KidneyDiseasePredictionService.preprocessPatientData(JSON.parse(JSON.stringify(uploadedPatientData, null, 2)) as any[]);
             const zippedPatientData = ckksSeal.arrayZipper(patientData.rows);
             const totalChunkCount = zippedPatientData.zippedData.reduce((cnt, zipped) => cnt + Math.floor(zipped.length / zippedPatientData.chunkSize), 0);
@@ -133,6 +134,8 @@ export default function KidneyDiseasePrediction() {
                         await KidneyDiseasePredictionService.deletePatientData();
                     });
             }
+
+            ckksSeal.delete();
         }
         catch (error) {
             if (error instanceof Error) {
@@ -146,8 +149,8 @@ export default function KidneyDiseasePrediction() {
              * Finalize the process
              */
             await KidneyDiseasePredictionService.deleteCkksKey();
-            handleHideProcessing();
             setProgressPercent(100);
+            handleHideProcessing();
         }
     }, [handleHideProcessing, handleShowProcessing, predictionModel, uploadedPatientData]);
 

@@ -1,4 +1,4 @@
-import { CKKSSeal } from "@/core/modules/homomorphicEncryption/CKKSSeal";
+import { CKKSSeal } from "@/core/modules/node-ckks/CKKSSeal";
 import { CipherText } from "node-seal/implementation/cipher-text";
 
 
@@ -40,13 +40,12 @@ export default class AccurateKidneyDiseasePredictionService {
          * Compute logit using the logistic regression formula:
          * logit = (coefficient * patientsData).sum + intercept
          */
-        const encryptedLogit = ckksSeal.add(
-            ckksSeal.sumElements(
-                ckksSeal.multiply(encryptedCoefficients, encryptedPatientsData),
-                chunkSizePerPatientData
-            ),
-            encryptedIntercept
-        );
+        const mul_coef_pat = ckksSeal.multiply(encryptedCoefficients, encryptedPatientsData);
+        const sum_feature = ckksSeal.sumElements(mul_coef_pat, chunkSizePerPatientData);
+        const encryptedLogit = ckksSeal.add(sum_feature, encryptedIntercept);
+
+        mul_coef_pat.delete();
+        sum_feature.delete();
 
 
         /**
@@ -64,16 +63,40 @@ export default class AccurateKidneyDiseasePredictionService {
         encryptedX[6] = ckksSeal.multiply(encryptedX[4], encryptedX[2]);
         encryptedX[8] = ckksSeal.multiply(encryptedX[4], encryptedX[4]);
 
-        let evenTerm = encryptedPolyCoefficients[0];
-        let oddTerm = encryptedPolyCoefficients[1];
+        const evenTerm = encryptedPolyCoefficients[0];
+        const oddTerm = encryptedPolyCoefficients[1];
+
+        const calcTerm = (term: CipherText, coef: CipherText, x: CipherText) => {
+            const mul_coef_x = ckksSeal.multiply(coef, x);
+            const acc_term = ckksSeal.add(term, mul_coef_x);
+            term.move(acc_term);
+            mul_coef_x.delete();
+            acc_term.delete();
+        }
 
         for (let i = 2; i <= 8; i += 2) {
-            evenTerm = ckksSeal.add(evenTerm, ckksSeal.multiply(encryptedPolyCoefficients[i], encryptedX[i]));
-            oddTerm = ckksSeal.add(oddTerm, ckksSeal.multiply(encryptedPolyCoefficients[i + 1], encryptedX[i]));
+            calcTerm(evenTerm, encryptedPolyCoefficients[i], encryptedX[i]);
+            calcTerm(oddTerm, encryptedPolyCoefficients[i + 1], encryptedX[i]);
         }
-        oddTerm = ckksSeal.multiply(oddTerm, encryptedX[1]);
+        const mul_term_x = ckksSeal.multiply(oddTerm, encryptedX[1]);
+        oddTerm.move(mul_term_x);
+        mul_term_x.delete();
 
-        return ckksSeal.add(evenTerm, oddTerm);
+        const result = ckksSeal.add(evenTerm, oddTerm);
+
+
+        /**
+         * Clear resources and return
+         */
+        encryptedIntercept.delete();
+        encryptedCoefficients.delete();
+        encryptedPolyCoefficients.forEach((coef) => coef?.delete());
+        encryptedX.forEach((x) => x?.delete());
+        encryptedLogit.delete();
+        evenTerm.delete();
+        oddTerm.delete();
+
+        return result;
     }
 
 

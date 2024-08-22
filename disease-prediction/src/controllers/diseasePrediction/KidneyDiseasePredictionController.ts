@@ -1,5 +1,5 @@
-import { CKKSSealBuilder } from "@/core/modules/homomorphicEncryption/CKKSSeal";
-import { NodeSealProvider } from "@/core/modules/homomorphicEncryption/NodeSeal";
+import { CKKSSealBuilder } from "@/core/modules/node-ckks/CKKSSeal";
+import { NodeSealProvider } from "@/core/modules/node-ckks/NodeSeal";
 import CkksKeyManagementService from "@/services/ckksKeyManager/CkksKeyManagementService";
 import AccurateKidneyDiseasePredictionService from "@/services/diseasePrediction/AccurateKidneyDiseasePredictionService";
 import FastKidneyDiseasePredictionService from "@/services/diseasePrediction/FastKidneyDiseasePredictionService";
@@ -35,11 +35,17 @@ export default class KidneyDiseasePredictionController {
                     console.log("Start building CKKS seal for linear model");
                     buildStartTime = Date.now(); // CKKS Seal 빌드 시작 시간
 
+                    const [publicKey, relinKeys, galoisKeys] = await Promise.all([
+                        CkksKeyManagementService.loadCkksKey(session.user.id, "publicKey"),
+                        CkksKeyManagementService.loadCkksKey(session.user.id, "relinKeys"),
+                        CkksKeyManagementService.loadCkksKey(session.user.id, "galoisKeys")
+                    ])
+
                     const ckksSeal = await NodeSealProvider.getSeal().then(async (nodeSeal) => {
                         return new CKKSSealBuilder(nodeSeal, nodeSeal.SecurityLevel.tc128, Math.pow(2, 14), [47, 47, 47, 60], Math.pow(2, 47))
-                            .loadPublicKey(await CkksKeyManagementService.loadCkksKey(session.user.id, "publicKey"))
-                            .loadRelinKeys(await CkksKeyManagementService.loadCkksKey(session.user.id, "relinKeys"))
-                            .loadGaloisKeys(await CkksKeyManagementService.loadCkksKey(session.user.id, "galoisKeys"))
+                            .loadPublicKey(publicKey)
+                            .loadRelinKeys(relinKeys)
+                            .loadGaloisKeys(galoisKeys)
                             .build();
                     });
 
@@ -64,6 +70,8 @@ export default class KidneyDiseasePredictionController {
                             prediction: this.uint8ArrayToBase64(ckksSeal.serializeCipherText(prediction)),
                         }
                     });
+
+                    ckksSeal.delete();
                     break;
                 }
                 case "logistic": {
@@ -99,6 +107,8 @@ export default class KidneyDiseasePredictionController {
                             prediction: this.uint8ArrayToBase64(ckksSeal.serializeCipherText(prediction)),
                         }
                     });
+
+                    ckksSeal.delete();
                     break;
                 }
                 default: {

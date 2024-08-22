@@ -7,6 +7,6 @@ export class NodeSealProvider {
     private constructor() { }
 
     static async getSeal(): Promise<SEALLibrary> {
-        return this._seal ?? await SEAL();
+        return this._seal ?? (this._seal = await SEAL());
     }
 }

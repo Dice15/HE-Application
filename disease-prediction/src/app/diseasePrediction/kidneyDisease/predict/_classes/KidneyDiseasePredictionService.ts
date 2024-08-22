@@ -1,5 +1,5 @@
-import { CKKSSeal, CKKSSealBuilder } from "@/core/modules/homomorphicEncryption/CKKSSeal";
-import { NodeSealProvider } from "@/core/modules/homomorphicEncryption/NodeSeal";
+import { CKKSSeal, CKKSSealBuilder } from "@/core/modules/node-ckks/CKKSSeal";
+import { NodeSealProvider } from "@/core/modules/node-ckks/NodeSeal";
 import axios from "axios";
 
 
@@ -54,7 +54,7 @@ export class KidneyDiseasePredictionService {
         const saveChunks = async (chunks: Uint8Array[], keyType: "publicKey" | "relinKeys" | "galoisKeys") => {
             for (let i = 0; i < chunks.length; i++) {
                 const base64Chunk = uint8ArrayToBase64(chunks[i]);
-                await axios.post('/api/ckksKeyManager/ckksKeyManagement', {
+                axios.post('/api/ckksKeyManager/ckksKeyManagement', {
                     chunk: base64Chunk,
                     index: i,
                     keyType: keyType

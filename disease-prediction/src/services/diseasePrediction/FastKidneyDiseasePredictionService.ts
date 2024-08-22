@@ -1,4 +1,4 @@
-import { CKKSSeal } from "@/core/modules/homomorphicEncryption/CKKSSeal";
+import { CKKSSeal } from "@/core/modules/node-ckks/CKKSSeal";
 import { CipherText } from "node-seal/implementation/cipher-text";
 
 
@@ -32,13 +32,21 @@ export default class FastKidneyDiseasePredictionService {
          * Compute the linear regression formula:
          * predict = (coefficient * patientsData).sum + intercept
          */
-        return ckksSeal.add(
-            ckksSeal.sumElements(
-                ckksSeal.multiply(encryptedCoefficients, encryptedPatientsData),
-                chunkSizePerPatientData
-            ),
-            encryptedIntercept
-        );
+        const mul_coef_pat = ckksSeal.multiply(encryptedCoefficients, encryptedPatientsData);
+        const sum_feature = ckksSeal.sumElements(mul_coef_pat, chunkSizePerPatientData);
+        const result = ckksSeal.add(sum_feature, encryptedIntercept);
+
+        mul_coef_pat.delete();
+        sum_feature.delete();
+
+
+        /**
+         * Clear resources and return
+         */
+        encryptedIntercept.delete();
+        encryptedCoefficients.delete();
+
+        return result;
     }
 
 

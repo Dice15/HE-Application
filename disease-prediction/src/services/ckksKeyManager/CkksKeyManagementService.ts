@@ -47,14 +47,14 @@ export default class CkksKeyManagementService {
         const db = await this.connectDb();
 
         try {
-            const serializedPublickey = await db.collection(keyType)
+            console.log('loadCkksKey', keyType)
+            return await db.collection(keyType)
                 .find({ id: userId })
                 .toArray()
                 .then((chunks) => {
                     chunks.sort((a, b) => a.index - b.index);
                     return this.mergeUint8Arrays(chunks.map(chunk => this.base64ToUint8Array(chunk.chunk)));
                 });
-            return serializedPublickey;
         }
         catch (error) {
             console.error(`Failed to load CKKS ${keyType}:`, error);
