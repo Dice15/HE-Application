@@ -110,62 +110,36 @@ export default function KidneyDiseasePrediction() {
             const zippedPatientData = ckksSeal.arrayZipper(patientData.rows);
             const totalChunkCount = zippedPatientData.zippedData.reduce((cnt, zipped) => cnt + Math.floor(zipped.length / zippedPatientData.chunkSize), 0);
 
-            for (let i = 0; i < zippedPatientData.zippedData.length; i++) {
-                await KidneyDiseasePredictionService.uploadPatientData(ckksSeal, zippedPatientData.zippedData[i], `kidneyDisease${i}`)
-                    .then(async () => {
-                        const predictions = await KidneyDiseasePredictionService.predictDisease(ckksSeal, `kidneyDisease${i}`, zippedPatientData.chunkSize, predictionModel);
-                        const sliceCount = Math.floor(zippedPatientData.zippedData[i].length / zippedPatientData.chunkSize);
-                        const startIndex = sliceCount * i;
 
-                        for (let j = 0; j < sliceCount; j++) {
-                            const result = KidneyDiseasePredictionService.isKidneyDisease(predictions[j * zippedPatientData.chunkSize]);
-                            setDiseasePredictions(prevResults => {
-                                const newResults = [...prevResults];
-                                newResults[startIndex + j] = Number(result);
-                                return newResults;
+            await Promise.all(
+                zippedPatientData.zippedData.map((data, i) =>
+                    KidneyDiseasePredictionService.uploadPatientData(ckksSeal, data, `kidneyDisease${i}`)
+                        .then(async () => {
+                            const predictions = await KidneyDiseasePredictionService.predictDisease(ckksSeal, `kidneyDisease${i}`, zippedPatientData.chunkSize, predictionModel);
+                            const sliceCount = Math.floor(zippedPatientData.zippedData[i].length / zippedPatientData.chunkSize);
+                            const startIndex = sliceCount * i;
+
+                            for (let j = 0; j < sliceCount; j++) {
+                                const result = KidneyDiseasePredictionService.isKidneyDisease(predictions[j * zippedPatientData.chunkSize]);
+                                setDiseasePredictions(prevResults => {
+                                    const newResults = [...prevResults];
+                                    newResults[startIndex + j] = Number(result);
+                                    return newResults;
+                                });
+                                setProgressPercent(prev => prev + ((1 / totalChunkCount) * 45));
+                            }
+                        })
+                        .catch(async () => {
+                            await Swal.fire({
+                                icon: 'error',
+                                title: 'Oops...',
+                                text: '환자의 신장 질환 검사 중 오류가 발생했습니다.',
+                                allowOutsideClick: false,
                             });
-                            setProgressPercent(prev => prev + ((1 / totalChunkCount) * 45));
-                        }
-                    })
-                    .catch(async () => {
-                        await Swal.fire({
-                            icon: 'error',
-                            title: 'Oops...',
-                            text: '환자의 신장 질환 검사 중 오류가 발생했습니다.',
-                            allowOutsideClick: false,
-                        });
-                        throw new Error('Failed to predicting patient data.');
-                    })
-            }
-            // await Promise.all(
-            //     zippedPatientData.zippedData.map((data, i) =>
-            //         KidneyDiseasePredictionService.uploadPatientData(ckksSeal, data, `kidneyDisease${i}`)
-            //             .then(async () => {
-            //                 const predictions = await KidneyDiseasePredictionService.predictDisease(ckksSeal, `kidneyDisease${i}`, zippedPatientData.chunkSize, predictionModel);
-            //                 const sliceCount = Math.floor(zippedPatientData.zippedData[i].length / zippedPatientData.chunkSize);
-            //                 const startIndex = sliceCount * i;
-
-            //                 for (let j = 0; j < sliceCount; j++) {
-            //                     const result = KidneyDiseasePredictionService.isKidneyDisease(predictions[j * zippedPatientData.chunkSize]);
-            //                     setDiseasePredictions(prevResults => {
-            //                         const newResults = [...prevResults];
-            //                         newResults[startIndex + j] = Number(result);
-            //                         return newResults;
-            //                     });
-            //                     setProgressPercent(prev => prev + ((1 / totalChunkCount) * 45));
-            //                 }
-            //             })
-            //             .catch(async () => {
-            //                 await Swal.fire({
-            //                     icon: 'error',
-            //                     title: 'Oops...',
-            //                     text: '환자의 신장 질환 검사 중 오류가 발생했습니다.',
-            //                     allowOutsideClick: false,
-            //                 });
-            //                 throw new Error('Failed to predicting patient data.');
-            //             })
-            //     )
-            // )
+                            throw new Error('Failed to predicting patient data.');
+                        })
+                )
+            )
 
             await KidneyDiseasePredictionService.deletePatientData();
             ckksSeal.delete();
