@@ -21,7 +21,7 @@ export default class PatientDataManagementService {
     }
 
 
-    public static async savePatientData(userId: string, chunk: string, index: string): Promise<string> {
+    public static async savePatientData(userId: string, chunk: string, index: string, dataName: string): Promise<string> {
         const db = await this.connectDb();
 
         try {
@@ -29,6 +29,7 @@ export default class PatientDataManagementService {
                 id: userId,
                 chunk: chunk,
                 index: index,
+                dataName: dataName,
             });
             return result.insertedId.toString();
         }
@@ -43,12 +44,12 @@ export default class PatientDataManagementService {
     }
 
 
-    public static async loadPatientData(userId: string): Promise<Uint8Array> {
+    public static async loadPatientData(userId: string, dataName: string): Promise<Uint8Array> {
         const db = await this.connectDb();
 
         try {
             const serializedPublickey = await db.collection('patientData')
-                .find({ id: userId })
+                .find({ id: userId, dataName: dataName })
                 .toArray()
                 .then((chunks) => {
                     chunks.sort((a, b) => a.index - b.index);
