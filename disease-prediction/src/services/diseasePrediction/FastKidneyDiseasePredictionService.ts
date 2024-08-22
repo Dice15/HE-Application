@@ -18,11 +18,11 @@ export default class FastKidneyDiseasePredictionService {
          * intercept (intercept of the linear regression model)
          * coefficients (coefficients of the linear regression model)
          */
-        const encryptedIntercept = ckksSeal.encrypt(Array.from(
+        const encodedIntercept = ckksSeal.encode(Array.from(
             { length: slotCount },
             () => intercept)
         );
-        const encryptedCoefficients = ckksSeal.encrypt(Array.from(
+        const encodedCoefficients = ckksSeal.encode(Array.from(
             { length: slotCount / chunkSizePerPatientData },
             () => coefficients.concat(new Array(chunkSizePerPatientData - coefficients.length).fill(0))).flat()
         );
@@ -32,9 +32,9 @@ export default class FastKidneyDiseasePredictionService {
          * Compute the linear regression formula:
          * predict = (coefficient * patientsData).sum + intercept
          */
-        const mul_coef_pat = ckksSeal.multiply(encryptedCoefficients, encryptedPatientsData);
+        const mul_coef_pat = ckksSeal.multiplyPlain(encryptedPatientsData, encodedCoefficients);
         const sum_feature = ckksSeal.sumElements(mul_coef_pat, chunkSizePerPatientData);
-        const result = ckksSeal.add(sum_feature, encryptedIntercept);
+        const result = ckksSeal.addPlain(sum_feature, encodedIntercept);
 
         mul_coef_pat.delete();
         sum_feature.delete();
@@ -43,8 +43,8 @@ export default class FastKidneyDiseasePredictionService {
         /**
          * Clear resources and return
          */
-        encryptedIntercept.delete();
-        encryptedCoefficients.delete();
+        encodedIntercept.delete();
+        encodedCoefficients.delete();
 
         return result;
     }

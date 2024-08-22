@@ -1,5 +1,6 @@
 import { CKKSSeal } from "@/core/modules/node-ckks/CKKSSeal";
 import { CipherText } from "node-seal/implementation/cipher-text";
+import { PlainText } from "node-seal/implementation/plain-text";
 
 
 export default class AccurateKidneyDiseasePredictionService {
@@ -20,29 +21,27 @@ export default class AccurateKidneyDiseasePredictionService {
          * coefficients (coefficients of the logistic regression model)
          * polyCoefficients (polynomial approximation of the sigmoid function)
          */
-        const encryptedIntercept = ckksSeal.encrypt(Array.from(
+        const encodedIntercept = ckksSeal.encode(Array.from(
             { length: slotCount },
             () => intercept)
         );
-        const encryptedCoefficients = ckksSeal.encrypt(Array.from(
+        const encodedCoefficients = ckksSeal.encode(Array.from(
             { length: slotCount / chunkSizePerPatientData },
             () => coefficients.concat(new Array(chunkSizePerPatientData - coefficients.length).fill(0))).flat()
         );
-        const encryptedPolyCoefficients = polyCoefficients.map((polyCoefficient) => {
-            return ckksSeal.encrypt(Array.from(
-                { length: slotCount },
-                () => polyCoefficient)
-            );
-        });
+        const encodedPolyCoefficients = polyCoefficients.map((polyCoefficient) => ckksSeal.encode(Array.from(
+            { length: slotCount },
+            () => polyCoefficient)
+        ));
 
 
         /**
          * Compute logit using the logistic regression formula:
          * logit = (coefficient * patientsData).sum + intercept
          */
-        const mul_coef_pat = ckksSeal.multiply(encryptedCoefficients, encryptedPatientsData);
+        const mul_coef_pat = ckksSeal.multiplyPlain(encryptedPatientsData, encodedCoefficients);
         const sum_feature = ckksSeal.sumElements(mul_coef_pat, chunkSizePerPatientData);
-        const encryptedLogit = ckksSeal.add(sum_feature, encryptedIntercept);
+        const encryptedLogit = ckksSeal.addPlain(sum_feature, encodedIntercept);
 
         mul_coef_pat.delete();
         sum_feature.delete();
@@ -63,20 +62,21 @@ export default class AccurateKidneyDiseasePredictionService {
         encryptedX[6] = ckksSeal.multiply(encryptedX[4], encryptedX[2]);
         encryptedX[8] = ckksSeal.multiply(encryptedX[4], encryptedX[4]);
 
-        const evenTerm = encryptedPolyCoefficients[0];
-        const oddTerm = encryptedPolyCoefficients[1];
-
-        const calcTerm = (term: CipherText, coef: CipherText, x: CipherText) => {
-            const mul_coef_x = ckksSeal.multiply(coef, x);
-            const acc_term = ckksSeal.add(term, mul_coef_x);
+        const calcTerm = (term: CipherText, coef: PlainText, x: CipherText) => {
+            const mul_coef_x = ckksSeal.multiplyPlain(x, coef);
+            const acc_term = ckksSeal.add(mul_coef_x, term);
             term.move(acc_term);
+
             mul_coef_x.delete();
             acc_term.delete();
         }
 
+        const evenTerm = ckksSeal.encryptPlain(encodedPolyCoefficients[0]);
+        const oddTerm = ckksSeal.encryptPlain(encodedPolyCoefficients[1]);
+
         for (let i = 2; i <= 8; i += 2) {
-            calcTerm(evenTerm, encryptedPolyCoefficients[i], encryptedX[i]);
-            calcTerm(oddTerm, encryptedPolyCoefficients[i + 1], encryptedX[i]);
+            calcTerm(evenTerm, encodedPolyCoefficients[i], encryptedX[i]);
+            calcTerm(oddTerm, encodedPolyCoefficients[i + 1], encryptedX[i]);
         }
         const mul_term_x = ckksSeal.multiply(oddTerm, encryptedX[1]);
         oddTerm.move(mul_term_x);
@@ -88,9 +88,9 @@ export default class AccurateKidneyDiseasePredictionService {
         /**
          * Clear resources and return
          */
-        encryptedIntercept.delete();
-        encryptedCoefficients.delete();
-        encryptedPolyCoefficients.forEach((coef) => coef?.delete());
+        encodedIntercept.delete();
+        encodedCoefficients.delete();
+        encodedPolyCoefficients.forEach((coef) => coef?.delete());
         encryptedX.forEach((x) => x?.delete());
         encryptedLogit.delete();
         evenTerm.delete();
